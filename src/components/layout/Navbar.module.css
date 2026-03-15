@@ -95,6 +95,38 @@
   transform: translateY(-1px);
 }
 
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.userEmail {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signOutButton {
+  padding: var(--space-1) var(--space-3);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.signOutButton:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
 .profileButton {
   display: flex;
   align-items: center;

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import styles from './Navbar.module.css';
 
 const NAV_ITEMS = [
@@ -14,7 +15,29 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.refresh();
+  };
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
@@ -54,11 +77,22 @@ export default function Navbar() {
           >
             {isMobileMenuOpen ? '✕' : '☰'}
           </button>
-          <Link href="/auth/login" className={styles.signInButton}>
-            Sign In
-          </Link>
+
+          {user ? (
+            <div className={styles.userSection}>
+              <span className={styles.userEmail}>{user.email}</span>
+              <button onClick={handleSignOut} className={styles.signOutButton}>
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <Link href="/auth/login" className={styles.signInButton}>
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
+
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
