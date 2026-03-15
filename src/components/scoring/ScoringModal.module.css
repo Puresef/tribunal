@@ -24,11 +24,13 @@
 .modal {
   width: 100%;
   max-width: 560px;
+  max-height: 90vh;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-modal);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   animation: slideUp var(--transition-dramatic) ease;
 }
 

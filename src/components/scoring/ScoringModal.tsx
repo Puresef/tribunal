@@ -9,6 +9,7 @@ import {
   getScoreLabel,
 } from '@/lib/scoring';
 import type { ScoreDimension, ScoringPayload } from '@/lib/scoring';
+import RadarScoreChart from '@/components/claims/RadarScoreChart';
 import styles from './ScoringModal.module.css';
 
 interface ScoringModalProps {
@@ -118,6 +119,15 @@ export default function ScoringModal({
               style={{ color: getScoreColor(finalComposite) }}
             >
               {finalComposite.toFixed(1)}
+            </div>
+            <div style={{ marginBottom: 'var(--space-6)', width: '100%', maxWidth: '280px' }}>
+              <RadarScoreChart
+                sourceCredibility={scores.source_credibility}
+                logicalStrength={scores.logical_strength}
+                relevance={scores.relevance}
+                composite={finalComposite}
+                size="large"
+              />
             </div>
             <div className={styles.successActions}>
               <button className={styles.shareButton}>

@@ -234,9 +234,9 @@ export default async function ClaimDetailPage({ params }: Props) {
       {claim.status !== 'settled' && (
         <div className={styles.stickyCtaWrap}>
           <div className={styles.stickyCta}>
-            <span className={styles.stickyText}>Have an opinion on this claim?</span>
+            <span className={styles.stickyText}>Have new evidence for this claim?</span>
             <a href={`/submit?claim=${id}`} className={styles.stickyButton}>
-              Judge Evidence
+              Submit Evidence
             </a>
           </div>
         </div>
