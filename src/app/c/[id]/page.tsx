@@ -1,10 +1,12 @@
 import type { Metadata, ResolvingMetadata } from 'next';
-import { getClaimById, getEvidenceByClaim, getRatingsForEvidenceArray } from '@/lib/actions';
+import { getClaimById, getEvidenceByClaim, getRatingsForEvidenceArray, getChallengesForClaim, getCurrentProfile } from '@/lib/actions';
 import type { Claim, Evidence } from '@/lib/types';
 import { getScoreColor } from '@/lib/scoring';
 import EvidenceList from './EvidenceList';
 import SplitBadge from '@/components/claims/SplitBadge';
 import ShareButton from '@/components/claims/ShareButton';
+import SettledBadge from '@/components/claims/SettledBadge';
+import ClaimActions from '@/components/claims/ClaimActions';
 import styles from './claim-detail.module.css';
 
 type Props = {
@@ -53,10 +55,14 @@ export default async function ClaimDetailPage({ params }: Props) {
   let claim: Claim;
   let evidence: Evidence[];
   let ratingsMap = {};
+  let challenges: any[] = [];
+  let userProfile = null;
 
   try {
+    userProfile = await getCurrentProfile();
     claim = await getClaimById(id);
     evidence = await getEvidenceByClaim(id);
+    challenges = await getChallengesForClaim(id);
     
     if (evidence.length > 0) {
       const evidenceIds = evidence.map((e) => e.id);
@@ -111,33 +117,51 @@ export default async function ClaimDetailPage({ params }: Props) {
         )}
 
         <div className={styles.scoreBar}>
-          <div className={styles.scoreBarItem}>
-            <div
-              className={styles.scoreBarValue}
-              style={{
-                color: claim.composite_score > 0
-                  ? getScoreColor(claim.composite_score)
-                  : 'var(--text-muted)',
-              }}
-            >
-              {claim.composite_score > 0 ? claim.composite_score.toFixed(1) : '—'}
+          {claim.status === 'settled' ? (
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+              <SettledBadge score={claim.composite_score} />
             </div>
-            <div className={styles.scoreBarLabel}>Composite</div>
-          </div>
-          <div className={styles.scoreBarItem}>
-            <div className={styles.scoreBarValue}>{claim.evidence_count}</div>
-            <div className={styles.scoreBarLabel}>Evidence</div>
-          </div>
-          <div className={styles.scoreBarItem}>
-            <div className={styles.scoreBarValue}>{claim.judge_count}</div>
-            <div className={styles.scoreBarLabel}>Judges</div>
-          </div>
-          <div className={styles.scoreBarItem}>
-            <div className={styles.scoreBarValue}>
-              {supporting.length}/{challenging.length}
-            </div>
-            <div className={styles.scoreBarLabel}>For/Against</div>
-          </div>
+          ) : (
+            <>
+              <div className={styles.scoreBarItem}>
+                <div
+                  className={styles.scoreBarValue}
+                  style={{
+                    color: claim.composite_score > 0
+                      ? getScoreColor(claim.composite_score)
+                      : 'var(--text-muted)',
+                  }}
+                >
+                  {claim.composite_score > 0 ? claim.composite_score.toFixed(1) : '—'}
+                </div>
+                <div className={styles.scoreBarLabel}>Composite</div>
+              </div>
+              <div className={styles.scoreBarItem}>
+                <div className={styles.scoreBarValue}>{claim.evidence_count}</div>
+                <div className={styles.scoreBarLabel}>Evidence</div>
+              </div>
+              <div className={styles.scoreBarItem}>
+                <div className={styles.scoreBarValue}>{claim.judge_count}</div>
+                <div className={styles.scoreBarLabel}>Judges</div>
+              </div>
+              <div className={styles.scoreBarItem}>
+                <div className={styles.scoreBarValue}>
+                  {supporting.length}/{challenging.length}
+                </div>
+                <div className={styles.scoreBarLabel}>For/Against</div>
+              </div>
+            </>
+          )}
+        </div>
+        
+        {/* Actions Row */}
+        <div style={{ marginTop: 'var(--space-6)' }}>
+          <ClaimActions 
+            claimId={claim.id} 
+            claimTitle={claim.title}
+            claimStatus={claim.status}
+            userRank={userProfile?.rank}
+          />
         </div>
       </div>
 
@@ -170,15 +194,53 @@ export default async function ClaimDetailPage({ params }: Props) {
         )}
       </div>
 
-      {/* Sticky CTA */}
-      <div className={styles.stickyCtaWrap}>
-        <div className={styles.stickyCta}>
-          <span className={styles.stickyText}>Have an opinion on this claim?</span>
-          <a href={`/submit?claim=${id}`} className={styles.stickyButton}>
-            Judge Evidence
-          </a>
+      {/* Challenges Section */}
+      {challenges.length > 0 && (
+        <div className={styles.evidenceSection} style={{ marginTop: 'var(--space-8)' }}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle} style={{ color: 'var(--warning-amber)' }}>
+              ⚠️ Formal Challenges ({challenges.length})
+            </h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            {challenges.map(challenge => (
+              <div key={challenge.id} className="card" style={{ borderLeft: '4px solid var(--warning-amber)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
+                  <div style={{ fontWeight: 'var(--weight-bold)' }}>
+                    {challenge.challenger?.display_name || 'Anonymous Judge'}
+                  </div>
+                  <div className="badge" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: 'var(--warning-amber)' }}>
+                    {challenge.status.toUpperCase()}
+                  </div>
+                </div>
+                <p className="text-secondary" style={{ fontSize: 'var(--text-sm)', whiteSpace: 'pre-wrap' }}>
+                  {challenge.reason}
+                </p>
+                {challenge.new_evidence && (
+                  <div style={{ marginTop: 'var(--space-4)', padding: 'var(--space-3)', backgroundColor: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)' }}>
+                    <span className="text-xs text-muted" style={{ textTransform: 'uppercase', display: 'block', marginBottom: 'var(--space-1)' }}>Linked Evidence</span>
+                    <a href={`#evidence-${challenge.new_evidence_id}`} style={{ color: 'var(--text-primary)', textDecoration: 'none' }}>
+                      "{challenge.new_evidence.title}"
+                    </a>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Sticky CTA */}
+      {claim.status !== 'settled' && (
+        <div className={styles.stickyCtaWrap}>
+          <div className={styles.stickyCta}>
+            <span className={styles.stickyText}>Have an opinion on this claim?</span>
+            <a href={`/submit?claim=${id}`} className={styles.stickyButton}>
+              Judge Evidence
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

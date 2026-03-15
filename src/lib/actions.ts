@@ -232,6 +232,155 @@ export async function getTopics() {
 }
 
 /* ============================================
+   Profiles / Judges
+   ============================================ */
+
+export async function getJudgeProfileById(userId: string) {
+  const supabase = await createClient();
+
+  // Fetch the basic profile
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (profileError) throw profileError;
+
+  // Fetch the extended judge stats
+  const { data: stats, error: statsError } = await supabase
+    .from('judge_profiles')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
+
+  // If the user hasn't scored anything, stats might not exist yet depending on the trigger
+  // but our handle_new_user trigger creates it! If for some reason it's missing, we fall back safely.
+  if (statsError && statsError.code !== 'PGRST116') {
+    throw statsError;
+  }
+
+  return {
+    ...profile,
+    stats: stats || null,
+  };
+}
+
+export async function getJudgeRecentRatings(userId: string, limit = 10) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('ratings')
+    .select(`
+      *,
+      evidence:evidence(
+        id, title, stance, claim_id,
+        claim:claims(id, title)
+      )
+    `)
+    .eq('judge_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data;
+}
+
+/* ============================================
+   Challenges & Settled Claims (Sprint 6)
+   ============================================ */
+
+export async function getSettledClaims(options?: {
+  topicId?: string;
+  sortBy?: 'score_high' | 'score_low' | 'recent';
+}) {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from('claims')
+    .select('*, topic:topics(*), submitter:profiles!submitter_id(*)')
+    .eq('status', 'settled');
+
+  if (options?.topicId) {
+    query = query.eq('topic_id', options.topicId);
+  }
+
+  if (options?.sortBy === 'score_high') {
+    query = query.order('composite_score', { ascending: false });
+  } else if (options?.sortBy === 'score_low') {
+    query = query.order('composite_score', { ascending: true });
+  } else {
+    query = query.order('updated_at', { ascending: false });
+  }
+
+  const { data, error } = await query;
+
+  if (error) throw error;
+  return data as Claim[];
+}
+
+export async function createChallenge(input: {
+  claim_id: string;
+  reason: string;
+  new_evidence_id?: string;
+}) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error('Not authenticated');
+
+  const { data, error } = await supabase
+    .from('challenges')
+    .insert({
+      claim_id: input.claim_id,
+      challenger_id: user.id,
+      reason: input.reason,
+      new_evidence_id: input.new_evidence_id || null,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getChallengesForClaim(claimId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('challenges')
+    .select('*, challenger:profiles!challenger_id(*), new_evidence:evidence(*)')
+    .eq('claim_id', claimId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function debugSettleClaim(claimId: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error('Not authenticated');
+
+  const { data, error } = await supabase
+    .from('claims')
+    .update({ status: 'settled', updated_at: new Date().toISOString() })
+    .eq('id', claimId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Claim;
+}
+
+/* ============================================
    Auth Helpers
    ============================================ */
 
