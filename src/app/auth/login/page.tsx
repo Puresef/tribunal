@@ -14,6 +14,7 @@ function LoginContent() {
 
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');
+  const [loginMethod, setLoginMethod] = useState<'magic_link' | 'password'>('magic_link');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleOAuthLogin = async (provider: 'twitter' | 'google') => {
@@ -30,16 +31,33 @@ function LoginContent() {
     setIsLoading(true);
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
 
-    await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
-      },
-    });
+    if (loginMethod === 'magic_link') {
+      await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
+        },
+      });
 
-    setSubmittedEmail(email);
-    setIsEmailSent(true);
+      setSubmittedEmail(email);
+      setIsEmailSent(true);
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        // Force a UI refresh with error
+        window.location.href = `/auth/login?error=auth_failed&msg=${encodeURIComponent(error.message)}`;
+        return;
+      }
+      // Successful password login -> redirect
+      window.location.href = redirectTo;
+    }
+
     setIsLoading(false);
   };
 
@@ -76,7 +94,7 @@ function LoginContent() {
 
             {error && (
               <div className={styles.error}>
-                Authentication failed. Please try again.
+                Authentication failed: {searchParams.get('msg') || 'Please try again.'}
               </div>
             )}
 
@@ -103,6 +121,23 @@ function LoginContent() {
             </div>
 
             <form onSubmit={handleEmailLogin} className={styles.emailForm}>
+              <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-4)' }}>
+                <button
+                  type="button"
+                  onClick={() => setLoginMethod('magic_link')}
+                  style={{ flex: 1, padding: 'var(--space-2)', borderRadius: 'var(--radius-md)', background: loginMethod === 'magic_link' ? 'var(--bg-elevated)' : 'transparent', border: '1px solid', borderColor: loginMethod === 'magic_link' ? 'var(--text-primary)' : 'var(--border-subtle)', color: loginMethod === 'magic_link' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                >
+                  Magic Link
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLoginMethod('password')}
+                  style={{ flex: 1, padding: 'var(--space-2)', borderRadius: 'var(--radius-md)', background: loginMethod === 'password' ? 'var(--bg-elevated)' : 'transparent', border: '1px solid', borderColor: loginMethod === 'password' ? 'var(--text-primary)' : 'var(--border-subtle)', color: loginMethod === 'password' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                >
+                  Password
+                </button>
+              </div>
+
               <input
                 type="email"
                 name="email"
@@ -111,8 +146,20 @@ function LoginContent() {
                 className={styles.emailInput}
                 disabled={isLoading}
               />
+              
+              {loginMethod === 'password' && (
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Enter password"
+                  required
+                  className={styles.emailInput}
+                  disabled={isLoading}
+                />
+              )}
+
               <button type="submit" className={styles.emailButton} disabled={isLoading}>
-                {isLoading ? 'Sending...' : 'Send Magic Link'}
+                {isLoading ? 'Authenticating...' : loginMethod === 'magic_link' ? 'Send Magic Link' : 'Sign In'}
               </button>
             </form>
 
