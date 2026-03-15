@@ -15,7 +15,6 @@ function LoginContent() {
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');
   const [loginMethod, setLoginMethod] = useState<'magic_link' | 'password'>('magic_link');
-  const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleOAuthLogin = async (provider: 'twitter' | 'google') => {
@@ -44,41 +43,24 @@ function LoginContent() {
 
       if (error) {
         window.location.href = `/auth/login?error=auth_failed&msg=${encodeURIComponent(error.message)}`;
+        setIsLoading(false);
         return;
       }
 
       setSubmittedEmail(email);
       setIsEmailSent(true);
     } else {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
-          },
-        });
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-        if (error) {
-          window.location.href = `/auth/login?error=auth_failed&msg=${encodeURIComponent(error.message)}`;
-          return;
-        }
-        
-        // If email confirmation is off, they might be logged in, but let's show a clear message
-        setIsEmailSent(true);
-        setSubmittedEmail(email);
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) {
-          window.location.href = `/auth/login?error=auth_failed&msg=${encodeURIComponent(error.message)}`;
-          return;
-        }
-        window.location.href = redirectTo;
+      if (error) {
+        window.location.href = `/auth/login?error=auth_failed&msg=${encodeURIComponent(error.message)}`;
+        setIsLoading(false);
+        return;
       }
+      window.location.href = redirectTo;
     }
 
     setIsLoading(false);
@@ -182,23 +164,8 @@ function LoginContent() {
               )}
 
               <button type="submit" className={styles.emailButton} disabled={isLoading}>
-                {isLoading 
-                  ? 'Authenticating...' 
-                  : loginMethod === 'magic_link' 
-                    ? 'Send Magic Link' 
-                    : (isSignUp ? 'Create Account' : 'Sign In')}
+                {isLoading ? 'Authenticating...' : loginMethod === 'magic_link' ? 'Send Magic Link' : 'Sign In'}
               </button>
-
-              {loginMethod === 'password' && (
-                <button
-                  type="button"
-                  onClick={() => setIsSignUp(!isSignUp)}
-                  className={styles.legal}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-2)', marginTop: 'var(--space-2)', width: '100%', textAlign: 'center' }}
-                >
-                  {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-                </button>
-              )}
             </form>
 
             <p className={styles.legal}>
