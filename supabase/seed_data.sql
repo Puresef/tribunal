@@ -3,15 +3,21 @@
 -- RUN THIS IN YOUR SUPABASE SQL EDITOR TO POPULATE THE PLATFORM
 -- ==============================================================================
 
--- 1. Create Fake Users (Judges) in auth.users
--- This uses the pgcrypto extension to generate password hashes securely.
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+-- 1. Create Fake Users (Judges)
+-- NOTE: We no longer insert into auth.users directly as it corrupts the schema.
+-- Please CREATE the users first in the Supabase Auth UI, then run this script
+-- to update their profiles and link them to data.
+
+-- Emails used: 
+-- chief@tribunal.so
+-- senior@tribunal.so
+-- member@tribunal.so
 
 DO $$
 DECLARE
-  chief_judge_id UUID := '11111111-1111-1111-1111-111111111111';
-  senior_judge_id UUID := '22222222-2222-2222-2222-222222222222';
-  member_id UUID := '33333333-3333-3333-3333-333333333333';
+  chief_judge_id UUID := (SELECT id FROM auth.users WHERE email = 'chief@tribunal.so' LIMIT 1);
+  senior_judge_id UUID := (SELECT id FROM auth.users WHERE email = 'senior@tribunal.so' LIMIT 1);
+  member_id UUID := (SELECT id FROM auth.users WHERE email = 'member@tribunal.so' LIMIT 1);
   topic_tech UUID;
   topic_philo UUID;
   topic_politics UUID;
@@ -25,18 +31,15 @@ DECLARE
   ev_5 UUID := 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeee5';
 BEGIN
 
-  -- Insert Auth Users (Password for all is 'Password123!')
-  INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
-  VALUES 
-  (chief_judge_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'chief@tribunal.so', crypt('Password123!', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{"name":"Aurelius"}', now(), now()),
-  (senior_judge_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'senior@tribunal.so', crypt('Password123!', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{"name":"Socrates"}', now(), now()),
-  (member_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'member@tribunal.so', crypt('Password123!', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{"name":"Plato"}', now(), now())
-  ON CONFLICT (id) DO NOTHING;
+  IF chief_judge_id IS NULL THEN
+    RAISE EXCEPTION 'User chief@tribunal.so not found. Please create it in the Auth UI first.';
+  END IF;
 
-  -- The trigger `handle_new_user` will have created their profiles. Now let's update their ranks.
+  -- Update profiles created by trigger
   UPDATE public.profiles SET display_name = 'Aurelius', rank = 'chief_justice' WHERE id = chief_judge_id;
   UPDATE public.profiles SET display_name = 'Socrates', rank = 'senior_judge' WHERE id = senior_judge_id;
   UPDATE public.profiles SET display_name = 'Plato', rank = 'member' WHERE id = member_id;
+
 
   -- 2. Ensure Topics exist and fetch their IDs
   INSERT INTO public.topics (name, slug, color) VALUES 
