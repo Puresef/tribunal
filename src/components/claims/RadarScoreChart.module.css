@@ -1,0 +1,30 @@
+.chartContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  /* Next.js Recharts SSR fix */
+  min-height: 120px;
+}
+
+/* Add a subtle glow behind the chart on hover if needed */
+.chartContainer::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%);
+  opacity: 0;
+  filter: blur(20px);
+  transition: opacity var(--transition-medium);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.chartContainer:hover::before {
+  opacity: 0.1;
+}
