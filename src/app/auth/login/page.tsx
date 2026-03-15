@@ -121,47 +121,80 @@ function LoginContent() {
             </div>
 
             <form onSubmit={handleEmailLogin} className={styles.emailForm}>
-              <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-4)' }}>
-                <button
-                  type="button"
-                  onClick={() => setLoginMethod('magic_link')}
-                  style={{ flex: 1, padding: 'var(--space-2)', borderRadius: 'var(--radius-md)', background: loginMethod === 'magic_link' ? 'var(--bg-elevated)' : 'transparent', border: '1px solid', borderColor: loginMethod === 'magic_link' ? 'var(--text-primary)' : 'var(--border-subtle)', color: loginMethod === 'magic_link' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-                >
-                  Magic Link
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLoginMethod('password')}
-                  style={{ flex: 1, padding: 'var(--space-2)', borderRadius: 'var(--radius-md)', background: loginMethod === 'password' ? 'var(--bg-elevated)' : 'transparent', border: '1px solid', borderColor: loginMethod === 'password' ? 'var(--text-primary)' : 'var(--border-subtle)', color: loginMethod === 'password' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-                >
-                  Password
-                </button>
-              </div>
-
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                required
-                className={styles.emailInput}
-                disabled={isLoading}
-              />
-              
-              {loginMethod === 'password' && (
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <label className={styles.label} style={{ display: 'block', marginBottom: 'var(--space-1)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                  Login with Email
+                </label>
                 <input
-                  type="password"
-                  name="password"
-                  placeholder="Enter password"
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
                   required
                   className={styles.emailInput}
                   disabled={isLoading}
                 />
-              )}
+              </div>
+              
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <label className={styles.label} style={{ display: 'block', marginBottom: 'var(--space-1)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                  Password (for seeded accounts)
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Enter password"
+                  className={styles.emailInput}
+                  disabled={isLoading}
+                />
+              </div>
 
-              <button type="submit" className={styles.emailButton} disabled={isLoading}>
-                {isLoading ? 'Authenticating...' : loginMethod === 'magic_link' ? 'Send Magic Link' : 'Sign In'}
-              </button>
+              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <button 
+                  type="submit" 
+                  onClick={() => setLoginMethod('magic_link')}
+                  className={styles.emailButton} 
+                  style={{ flex: 1, backgroundColor: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
+                  disabled={isLoading}
+                >
+                  {isLoading && loginMethod === 'magic_link' ? 'Sending...' : 'Magic Link'}
+                </button>
+                <button 
+                  type="submit" 
+                  onClick={() => setLoginMethod('password')}
+                  className={styles.emailButton} 
+                  style={{ flex: 2 }}
+                  disabled={isLoading}
+                >
+                  {isLoading && loginMethod === 'password' ? 'Authenticating...' : 'Sign In'}
+                </button>
+              </div>
             </form>
+
+            <div className={styles.divider} style={{ margin: 'var(--space-6) 0 var(--space-4)' }}>
+              <span>Demo Access</span>
+            </div>
+
+            <button
+              onClick={async () => {
+                setIsLoading(true);
+                const { error } = await supabase.auth.signInWithPassword({
+                  email: 'chief@tribunal.so',
+                  password: 'Password123!',
+                });
+                if (error) {
+                  window.location.href = `/auth/login?error=auth_failed&msg=${encodeURIComponent(error.message)}`;
+                } else {
+                  window.location.href = redirectTo;
+                }
+                setIsLoading(false);
+              }}
+              className={styles.socialButton}
+              style={{ backgroundColor: 'rgba(251, 191, 36, 0.1)', borderColor: 'rgba(251, 191, 36, 0.3)', color: 'var(--accent-gold)' }}
+              disabled={isLoading}
+            >
+              <span className={styles.socialIcon}>🎖️</span>
+              Quick Login as Chief Justice
+            </button>
 
             <p className={styles.legal}>
               By continuing, you agree to The Tribunal&apos;s Terms of Service.
