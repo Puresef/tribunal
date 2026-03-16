@@ -32,14 +32,7 @@ export default async function BoardPage() {
         </p>
       </div>
 
-      <div className={styles.pageLayout}>
-        <div className="mainFeed">
-          <BoardClient initialClaims={claims} topics={topics} />
-        </div>
-        <aside className="sidebar">
-          <LiveScoringFeed />
-        </aside>
-      </div>
+      <BoardClient initialClaims={claims} topics={topics} />
     </div>
   );
 }

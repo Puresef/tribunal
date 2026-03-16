@@ -4,7 +4,10 @@ import { useState, useEffect, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Claim, Topic } from '@/lib/types';
 import ClaimCard from './ClaimCard';
+import LiveScoringFeed from './LiveScoringFeed';
+import TopicSelector from './TopicSelector';
 import styles from '@/app/board.module.css';
+import refinementStyles from './boardRefinement.module.css';
 
 interface BoardClientProps {
   initialClaims: Claim[];
@@ -59,6 +62,22 @@ export default function BoardClient({ initialClaims, topics }: BoardClientProps)
       supabase.removeChannel(channel);
     };
   }, [supabase]);
+
+  // Calculate activity counts per topic for sorting/display
+  const topicCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    claims.forEach(c => {
+      if (c.topic_id) {
+        counts[c.topic_id] = (counts[c.topic_id] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [claims]);
+
+  // Sort topics by activity
+  const activeTopics = useMemo(() => {
+    return [...topics].sort((a, b) => (topicCounts[b.id] || 0) - (topicCounts[a.id] || 0));
+  }, [topics, topicCounts]);
 
   const filteredAndSortedClaims = useMemo(() => {
     let result = [...claims];
@@ -116,45 +135,63 @@ export default function BoardClient({ initialClaims, topics }: BoardClientProps)
           </button>
         </div>
 
-        <div className={styles.topicScroller}>
+        <div className={styles.topicNav}>
           <button 
             className={`badge ${!selectedTopicId ? 'badge-active' : ''}`}
             onClick={() => setSelectedTopicId(null)}
           >
             All Topics
           </button>
-          {topics.map((topic) => (
-            <button
-              key={topic.id}
-              className={`badge ${selectedTopicId === topic.id ? 'badge-active' : ''}`}
-              style={selectedTopicId === topic.id ? { 
-                backgroundColor: `${topic.color}20`,
-                borderColor: topic.color,
-                color: topic.color
-              } : {}}
-              onClick={() => setSelectedTopicId(topic.id)}
-            >
-              {topic.name}
-            </button>
-          ))}
+          
+          <TopicSelector 
+            topics={topics} 
+            selectedTopicId={selectedTopicId} 
+            onSelect={setSelectedTopicId}
+            topicCounts={topicCounts}
+          />
+
+          <div className={styles.topicScroller}>
+            {activeTopics.slice(0, 8).map((topic) => (
+              <button
+                key={topic.id}
+                className={`badge ${selectedTopicId === topic.id ? 'badge-active' : ''}`}
+                style={selectedTopicId === topic.id ? { 
+                  backgroundColor: `${topic.color}20`,
+                  borderColor: topic.color,
+                  color: topic.color
+                } : {}}
+                onClick={() => setSelectedTopicId(topic.id)}
+              >
+                {topic.name}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {filteredAndSortedClaims.length > 0 ? (
-        <div className={styles.grid}>
-          {filteredAndSortedClaims.map((claim) => (
-            <ClaimCard key={claim.id} claim={claim} />
-          ))}
+      <div className={refinementStyles.mainLayout}>
+        <div className="claimsFeed">
+          {filteredAndSortedClaims.length > 0 ? (
+            <div className={styles.grid}>
+              {filteredAndSortedClaims.map((claim) => (
+                <ClaimCard key={claim.id} claim={claim} />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>⚖</div>
+              <h2 className={styles.emptyTitle}>No claims found</h2>
+              <p className={styles.emptyText}>
+                Try adjusting your filters or be the first to submit a claim in this topic.
+              </p>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>⚖</div>
-          <h2 className={styles.emptyTitle}>No claims found</h2>
-          <p className={styles.emptyText}>
-            Try adjusting your filters or be the first to submit a claim in this topic.
-          </p>
-        </div>
-      )}
+
+        <aside className="sidebar">
+          <LiveScoringFeed />
+        </aside>
+      </div>
     </>
   );
 }

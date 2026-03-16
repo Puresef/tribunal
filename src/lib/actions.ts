@@ -231,6 +231,32 @@ export async function getTopics() {
   return data as Topic[];
 }
 
+export async function createTopic(input: {
+  name: string;
+}) {
+  const supabase = await createClient();
+
+  // Pick a random vibrant color
+  const colors = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#3b82f6'];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  
+  // Generate slug
+  const slug = input.name.toLowerCase().replace(/[^a-z0-t0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+  const { data, error } = await supabase
+    .from('topics')
+    .insert({
+      name: input.name.trim(),
+      slug,
+      color,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Topic;
+}
+
 /* ============================================
    Profiles / Judges
    ============================================ */

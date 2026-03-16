@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { createTopic } from '@/lib/actions';
 import type { Topic } from '@/lib/types';
+import TopicPicker from '@/components/claims/TopicPicker';
 import styles from './submit-claim.module.css';
 
 export default function SubmitClaimPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [topicId, setTopicId] = useState('');
+  const [newTopicName, setNewTopicName] = useState('');
   const [topics, setTopics] = useState<Topic[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -21,6 +24,15 @@ export default function SubmitClaimPage() {
       if (data) setTopics(data);
     });
   }, [supabase]);
+
+  const handleTopicSelect = (id: string, name?: string) => {
+    setTopicId(id);
+    if (id === 'NEW' && name) {
+      setNewTopicName(name);
+    } else {
+      setNewTopicName('');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,12 +51,20 @@ export default function SubmitClaimPage() {
         return;
       }
 
+      let finalTopicId = topicId;
+
+      // Handle new topic creation
+      if (topicId === 'NEW' && newTopicName) {
+        const newTopic = await createTopic({ name: newTopicName });
+        finalTopicId = newTopic.id;
+      }
+
       const { data, error: insertError } = await supabase
         .from('claims')
         .insert({
           title: title.trim(),
           description: description.trim() || null,
-          topic_id: topicId || null,
+          topic_id: finalTopicId || null,
           submitter_id: user.id,
         })
         .select()
@@ -125,20 +145,17 @@ export default function SubmitClaimPage() {
             <label className={styles.label} htmlFor="claim-topic">
               Topic
             </label>
-            <select
-              id="claim-topic"
-              className={styles.select}
-              value={topicId}
-              onChange={(e) => setTopicId(e.target.value)}
-              disabled={isSubmitting}
-            >
-              <option value="">Select a topic...</option>
-              {topics.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
+            <TopicPicker 
+              topics={topics}
+              selectedTopicId={topicId === 'NEW' ? '' : topicId}
+              onSelect={handleTopicSelect}
+              isSubmitting={isSubmitting}
+            />
+            {topicId === 'NEW' && (
+              <p className={styles.charCount} style={{ color: 'var(--accent-cyan)', marginTop: '4px' }}>
+                ✨ Will create new topic: <strong>{newTopicName}</strong>
+              </p>
+            )}
           </div>
 
           <div className={styles.formFooter}>
