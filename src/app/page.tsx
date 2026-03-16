@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getClaims, getTopics } from '@/lib/actions';
 import type { Claim, Topic } from '@/lib/types';
 import BoardClient from '@/components/claims/BoardClient';
+import LiveScoringFeed from '@/components/claims/LiveScoringFeed';
 import styles from './board.module.css';
 
 export const metadata: Metadata = {
@@ -31,7 +32,14 @@ export default async function BoardPage() {
         </p>
       </div>
 
-      <BoardClient initialClaims={claims} topics={topics} />
+      <div className={styles.pageLayout}>
+        <div className="mainFeed">
+          <BoardClient initialClaims={claims} topics={topics} />
+        </div>
+        <aside className="sidebar">
+          <LiveScoringFeed />
+        </aside>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { Metadata, ResolvingMetadata } from 'next';
-import { getClaimById, getEvidenceByClaim, getRatingsForEvidenceArray, getChallengesForClaim, getCurrentProfile } from '@/lib/actions';
+import { getClaimById, getEvidenceByClaim, getRatingsForEvidenceArray, getChallengesForClaim, getCurrentProfile, getClaims } from '@/lib/actions';
 import type { Claim, Evidence } from '@/lib/types';
 import { getScoreColor } from '@/lib/scoring';
 import EvidenceList from './EvidenceList';
@@ -7,6 +7,8 @@ import SplitBadge from '@/components/claims/SplitBadge';
 import ShareButton from '@/components/claims/ShareButton';
 import SettledBadge from '@/components/claims/SettledBadge';
 import ClaimActions from '@/components/claims/ClaimActions';
+import ScoreHistoryChart from '@/components/claims/ScoreHistoryChart';
+import RelatedClaimsSidebar from '@/components/claims/RelatedClaimsSidebar';
 import styles from './claim-detail.module.css';
 
 type Props = {
@@ -80,9 +82,34 @@ export default async function ClaimDetailPage({ params }: Props) {
 
   const supporting = evidence.filter((e) => e.stance === 'supporting');
   const challenging = evidence.filter((e) => e.stance === 'challenging');
+  
+  const allRatings = Object.values(ratingsMap).flat() as any[];
+
+  let avgSource = 0;
+  let avgLogic = 0;
+  let avgRelevance = 0;
+  if (allRatings.length > 0) {
+    avgSource = allRatings.reduce((sum, r) => sum + r.source_credibility, 0) / allRatings.length;
+    avgLogic = allRatings.reduce((sum, r) => sum + r.logical_strength, 0) / allRatings.length;
+    avgRelevance = allRatings.reduce((sum, r) => sum + r.relevance, 0) / allRatings.length;
+  }
+
+  let relatedClaims: Claim[] = [];
+  try {
+    if (claim.topic_id) {
+      const topicClaims = await getClaims({ limit: 15 });
+      relatedClaims = topicClaims
+        .filter(c => c.id !== claim.id && c.topic_id === claim.topic_id)
+        .slice(0, 4);
+    }
+  } catch (e) {
+    console.error("Failed to fetch related claims", e);
+  }
 
   return (
     <div className="content-container">
+      <div className={styles.pageLayout}>
+        <div className="mainFeed">
       {/* Hero Section */}
       <div className={styles.claimHero}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -153,6 +180,49 @@ export default async function ClaimDetailPage({ params }: Props) {
             </>
           )}
         </div>
+
+        {/* Dimension Bars */}
+        {allRatings.length > 0 && claim.status !== 'settled' && (
+          <div style={{ 
+            display: 'flex', 
+            gap: 'var(--space-6)', 
+            marginTop: 'var(--space-4)', 
+            padding: 'var(--space-4) var(--space-6)', 
+            backgroundColor: 'var(--bg-card)', 
+            border: '1px solid var(--border-card)',
+            borderRadius: 'var(--radius-lg)' 
+          }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', marginBottom: 'var(--space-2)', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
+                <span>Source Quality</span>
+                <span style={{ color: getScoreColor(avgSource), fontWeight: 'bold' }}>{avgSource.toFixed(1)}</span>
+              </div>
+              <div style={{ height: '4px', backgroundColor: 'var(--bg-elevated)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${(avgSource / 10) * 100}%`, backgroundColor: getScoreColor(avgSource) }} />
+              </div>
+            </div>
+            
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', marginBottom: 'var(--space-2)', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
+                <span>Logical Strength</span>
+                <span style={{ color: getScoreColor(avgLogic), fontWeight: 'bold' }}>{avgLogic.toFixed(1)}</span>
+              </div>
+              <div style={{ height: '4px', backgroundColor: 'var(--bg-elevated)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${(avgLogic / 10) * 100}%`, backgroundColor: getScoreColor(avgLogic) }} />
+              </div>
+            </div>
+            
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', marginBottom: 'var(--space-2)', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
+                <span>Relevance</span>
+                <span style={{ color: getScoreColor(avgRelevance), fontWeight: 'bold' }}>{avgRelevance.toFixed(1)}</span>
+              </div>
+              <div style={{ height: '4px', backgroundColor: 'var(--bg-elevated)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${(avgRelevance / 10) * 100}%`, backgroundColor: getScoreColor(avgRelevance) }} />
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Actions Row */}
         <div style={{ marginTop: 'var(--space-6)' }}>
@@ -165,12 +235,10 @@ export default async function ClaimDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Score Timeline Stub */}
+      {/* Score Timeline */}
       <div className={styles.timelineSection}>
         <h2 className={styles.sectionTitle} style={{ fontSize: 'var(--text-lg)' }}>Score History</h2>
-        <div className={styles.timelinePlaceholder}>
-          Interactive timeline rendering...
-        </div>
+        <ScoreHistoryChart ratings={allRatings} currentScore={claim.composite_score} />
       </div>
 
       {/* Evidence Section */}
@@ -229,6 +297,12 @@ export default async function ClaimDetailPage({ params }: Props) {
           </div>
         </div>
       )}
+
+        </div>
+        <aside className="sidebar">
+          <RelatedClaimsSidebar claims={relatedClaims} />
+        </aside>
+      </div>
 
       {/* Sticky CTA */}
       {claim.status !== 'settled' && (

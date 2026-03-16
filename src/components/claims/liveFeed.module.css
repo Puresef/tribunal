@@ -1,0 +1,149 @@
+.feedContainer {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  position: sticky;
+  top: var(--space-6);
+  max-height: calc(100vh - var(--space-12));
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  background-color: var(--score-high);
+  border-radius: 50%;
+  animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+  0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+.feedList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-subtle) transparent;
+  padding-right: var(--space-2);
+}
+
+.feedList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.feedList::-webkit-scrollbar-thumb {
+  background-color: var(--border-subtle);
+  border-radius: 4px;
+}
+
+.feedItem {
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  animation: slide-in 0.3s ease-out;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background-color: var(--bg-raised);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.itemContent {
+  flex-grow: 1;
+  line-height: var(--leading-tight);
+}
+
+.judgeName {
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+}
+
+.action {
+  color: var(--text-secondary);
+}
+
+.evidenceName {
+  color: var(--text-primary);
+  font-weight: var(--weight-medium);
+  font-style: italic;
+}
+
+.claimLink {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.claimLink:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+.scoreBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xs);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  margin-left: var(--space-1);
+}
+
+.highScore {
+  background-color: rgba(74, 222, 128, 0.1);
+  color: var(--score-high);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.medScore {
+  background-color: rgba(251, 191, 36, 0.1);
+  color: var(--score-medium);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.lowScore {
+  background-color: rgba(248, 113, 113, 0.1);
+  color: var(--score-low);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.time {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: var(--space-1);
+}

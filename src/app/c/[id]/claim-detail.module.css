@@ -261,3 +261,17 @@
     padding: var(--space-4);
   }
 }
+
+/* Page Layout for Sidebar */
+.pageLayout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .pageLayout {
+    grid-template-columns: 1fr;
+  }
+}
