@@ -1,7 +1,7 @@
 import type { Metadata, ResolvingMetadata } from 'next';
 import { getClaimById, getEvidenceByClaim, getRatingsForEvidenceArray, getChallengesForClaim, getCurrentProfile, getClaims } from '@/lib/actions';
 import type { Claim, Evidence } from '@/lib/types';
-import { getScoreColor } from '@/lib/scoring';
+import { getScoreColor, calculateComposite } from '@/lib/scoring';
 import EvidenceList from './EvidenceList';
 import SplitBadge from '@/components/claims/SplitBadge';
 import ShareButton from '@/components/claims/ShareButton';
@@ -94,13 +94,20 @@ export default async function ClaimDetailPage({ params }: Props) {
     avgRelevance = allRatings.reduce((sum, r) => sum + r.relevance, 0) / allRatings.length;
   }
 
+  const displayCompositeScore = allRatings.length > 0 ? calculateComposite(avgSource, avgLogic, avgRelevance) : 0;
+
   let relatedClaims: Claim[] = [];
   try {
+    const topicClaims = await getClaims({ limit: 15 });
     if (claim.topic_id) {
-      const topicClaims = await getClaims({ limit: 15 });
       relatedClaims = topicClaims
-        .filter(c => c.id !== claim.id && c.topic_id === claim.topic_id)
+        .filter((c: Claim) => c.id !== claim.id && c.topic_id === claim.topic_id)
         .slice(0, 4);
+    }
+    
+    // Fallback if no matching topic claims found
+    if (relatedClaims.length === 0) {
+      relatedClaims = topicClaims.filter((c: Claim) => c.id !== claim.id).slice(0, 4);
     }
   } catch (e) {
     console.error("Failed to fetch related claims", e);
@@ -158,8 +165,8 @@ export default async function ClaimDetailPage({ params }: Props) {
         {/* Dashboard Score Card */}
         <div className={styles.dashboardScoreCard}>
           <div className={styles.compositeScoreSection}>
-            <div className={styles.compositeScoreValue} style={{ color: claim.composite_score > 0 ? getScoreColor(claim.composite_score) : 'var(--text-muted)' }}>
-              {claim.composite_score > 0 ? claim.composite_score.toFixed(1) : '—'}
+            <div className={styles.compositeScoreValue} style={{ color: displayCompositeScore > 0 ? getScoreColor(displayCompositeScore) : 'var(--text-muted)' }}>
+              {displayCompositeScore > 0 ? displayCompositeScore.toFixed(1) : '—'}
             </div>
             <div className={styles.compositeScoreLabel}>COMPOSITE SCORE</div>
           </div>
@@ -280,12 +287,14 @@ export default async function ClaimDetailPage({ params }: Props) {
           {/* Score Timeline */}
           <div className={`${styles.timelineSection} ${styles.sidebarCard}`}>
             <h2 className={styles.sectionTitle} style={{ fontSize: 'var(--text-lg)' }}>Score History</h2>
-            <ScoreHistoryChart ratings={allRatings} currentScore={claim.composite_score} />
+            <ScoreHistoryChart ratings={allRatings} currentScore={displayCompositeScore} />
           </div>
 
-          <div className={styles.sidebarCard}>
-            <RelatedClaimsSidebar claims={relatedClaims} />
-          </div>
+          {relatedClaims && relatedClaims.length > 0 && (
+            <div className={styles.sidebarCard} style={{ padding: 0, background: 'transparent', border: 'none' }}>
+              <RelatedClaimsSidebar claims={relatedClaims} />
+            </div>
+          )}
         </aside>
       </div>
     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import type { Evidence, Rating } from '@/lib/types';
-import { getScoreColor } from '@/lib/scoring';
+import { getScoreColor, calculateComposite } from '@/lib/scoring';
 import JudgeMosaic from './JudgeMosaic';
 import RadarScoreChart from './RadarScoreChart';
 import styles from './EvidenceCard.module.css';
@@ -31,7 +31,8 @@ export default function EvidenceCard({ evidence, ratings = [], onScoreClick }: E
   const avgSource = len > 0 ? validRatings.reduce((sum, r) => sum + r.source_credibility, 0) / len : 0;
   const avgLogic = len > 0 ? validRatings.reduce((sum, r) => sum + r.logical_strength, 0) / len : 0;
   const avgRelevance = len > 0 ? validRatings.reduce((sum, r) => sum + r.relevance, 0) / len : 0;
-  
+  const displayComposite = evidence.composite_score > 0 ? evidence.composite_score : (len > 0 ? calculateComposite(avgSource, avgLogic, avgRelevance) : 0);
+
   return (
     <div className={`${styles.evidenceCard} ${stanceInfo.class}`}>
       {isControversial && (
@@ -50,27 +51,16 @@ export default function EvidenceCard({ evidence, ratings = [], onScoreClick }: E
           )}
         </div>
         <div className={styles.scoreArea}>
-          {evidence.composite_score > 0 && (
-            <div className={styles.radarWrapper}>
-              <RadarScoreChart
-                sourceCredibility={avgSource}
-                logicalStrength={avgLogic}
-                relevance={avgRelevance}
-                composite={evidence.composite_score}
-                size="small"
-              />
-            </div>
-          )}
           <div className={styles.scoreBox}>
             <span
               className={styles.scoreValue}
               style={{
-                color: evidence.composite_score > 0
-                  ? getScoreColor(evidence.composite_score)
+                color: displayComposite > 0
+                  ? getScoreColor(displayComposite)
                   : 'var(--text-muted)',
               }}
             >
-              {evidence.composite_score > 0 ? evidence.composite_score.toFixed(1) : '—'}
+              {displayComposite > 0 ? displayComposite.toFixed(1) : '—'}
             </span>
             <span className={styles.scoreLabel}>
               COMPOSITE

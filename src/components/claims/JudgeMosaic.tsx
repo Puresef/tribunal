@@ -9,82 +9,39 @@ interface JudgeMosaicProps {
   maxDisplay?: number;
 }
 
-export default function JudgeMosaic({ ratings, maxDisplay = 5 }: JudgeMosaicProps) {
+export default function JudgeMosaic({ ratings }: JudgeMosaicProps) {
   if (!ratings || ratings.length === 0) return null;
-
-  const displayRatings = ratings.slice(0, maxDisplay);
-  const remainingCount = Math.max(0, ratings.length - maxDisplay);
-
-  const getInitials = (name?: string) => {
-    if (!name) return '?';
-    return name.slice(0, 2).toUpperCase();
-  };
 
   return (
     <div className={styles.mosaicContainer}>
-      {displayRatings.map((rating, index) => {
+      {ratings.map((rating) => {
         const judge = rating.judge;
         const displayName = judge?.display_name || 'Anonymous';
-        const zIndex = displayRatings.length - index;
-
         return (
-          <div 
-            key={rating.id} 
-            className={styles.avatar} 
-            style={{ 
-              zIndex, 
-              backgroundImage: judge?.avatar_url ? `url(${judge.avatar_url})` : 'none',
-              backgroundColor: judge?.avatar_url ? 'transparent' : 'var(--bg-elevated)',
-            }}
-            aria-label={`Score by ${displayName}`}
-          >
-            {/* Show composite score overlay */}
-            <span className={styles.avatarScoreOverlay} style={{ color: getScoreColor(rating.composite) }}>
-              {rating.composite.toFixed(1)}
-            </span>
-
-            {/* Hover Tooltip */}
-            <div className={styles.tooltip}>
-              <div className={styles.tooltipHeader}>
-                <span className={styles.tooltipName}>{displayName}</span>
-                {judge?.rank && <span className={styles.tooltipRank}>{judge.rank.replace('_', ' ')}</span>}
-              </div>
-              <div className={styles.tooltipScores}>
-                <div className={styles.scoreRow}>
-                  <span>Source</span>
-                  <span className={styles.scoreVal} style={{ color: getScoreColor(rating.source_credibility) }}>
-                    {rating.source_credibility.toFixed(1)}
-                  </span>
-                </div>
-                <div className={styles.scoreRow}>
-                  <span>Logic</span>
-                  <span className={styles.scoreVal} style={{ color: getScoreColor(rating.logical_strength) }}>
-                    {rating.logical_strength.toFixed(1)}
-                  </span>
-                </div>
-                <div className={styles.scoreRow}>
-                  <span>Relevance</span>
-                  <span className={styles.scoreVal} style={{ color: getScoreColor(rating.relevance) }}>
-                    {rating.relevance.toFixed(1)}
-                  </span>
-                </div>
-                <div className={styles.scoreRow} style={{ marginTop: '4px', paddingTop: '4px', borderTop: '1px solid var(--border-card)'}}>
-                  <span style={{ color: 'var(--text-primary)'}}>Composite</span>
-                  <span className={styles.scoreVal} style={{ color: getScoreColor(rating.composite) }}>
-                    {rating.composite.toFixed(1)}
-                  </span>
-                </div>
-              </div>
+          <div key={rating.id} className={styles.judgeRow}>
+            <div 
+              className={styles.avatar} 
+              style={{ 
+                backgroundImage: judge?.avatar_url ? `url(${judge.avatar_url})` : 'none',
+              }}
+              title={displayName}
+            >
+              {!judge?.avatar_url && <span>{displayName.slice(0, 2).toUpperCase()}</span>}
+            </div>
+            
+            <div className={styles.judgeInfo}>
+              <span className={styles.judgeName}>@{displayName.toLowerCase().replace(/\s+/g, '')}</span>
+              <span className={styles.judgeScores}>
+                <span style={{ color: getScoreColor(rating.source_credibility) }}>{rating.source_credibility.toFixed(1)}</span>
+                <span className={styles.dot}>·</span>
+                <span style={{ color: getScoreColor(rating.logical_strength) }}>{rating.logical_strength.toFixed(1)}</span>
+                <span className={styles.dot}>·</span>
+                <span style={{ color: getScoreColor(rating.relevance) }}>{rating.relevance.toFixed(1)}</span>
+              </span>
             </div>
           </div>
         );
       })}
-      
-      {remainingCount > 0 && (
-        <div className={styles.moreCount}>
-          +{remainingCount}
-        </div>
-      )}
     </div>
   );
 }

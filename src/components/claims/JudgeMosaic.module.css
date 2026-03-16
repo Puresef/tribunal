@@ -1,114 +1,53 @@
 .mosaicContainer {
   display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: 0;
+}
+
+.judgeRow {
+  display: flex;
   align-items: center;
-  position: relative;
-  height: 28px;
+  gap: var(--space-3);
 }
 
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  border: 2px solid var(--bg-card);
+  border: 1px solid var(--border-subtle);
   background-color: var(--bg-elevated);
   background-size: cover;
   background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: -8px;
-  position: relative;
-  cursor: help;
-  transition: transform var(--transition-fast), z-index 0s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-}
-
-.avatar:first-child {
-  margin-left: 0;
-}
-
-.avatar:hover {
-  transform: translateY(-2px) scale(1.1);
-  z-index: 10 !important;
-}
-
-.avatarScoreOverlay {
-  font-family: var(--font-score);
-  font-size: 11px;
+  font-size: 9px;
   font-weight: var(--weight-bold);
-  text-shadow: 0px 1px 3px rgba(0,0,0,0.8), 0px 0px 2px rgba(0,0,0,1);
-  z-index: 2;
+  color: var(--text-muted);
 }
 
-.moreCount {
-  font-size: 11px;
-  font-weight: var(--weight-semibold);
-  color: var(--text-secondary);
-  padding-left: var(--space-2);
-}
-
-/* Tooltip */
-.tooltip {
-  position: absolute;
-  bottom: calc(100% + var(--space-2));
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-3);
-  width: max-content;
-  min-width: 180px;
-  z-index: 20;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
-  box-shadow: var(--shadow-elevated);
-  pointer-events: none;
-}
-
-.avatar:hover .tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-}
-
-.tooltipHeader {
+.judgeInfo {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin-bottom: var(--space-2);
-  padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  font-size: 11px;
 }
 
-.tooltipName {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  color: var(--text-primary);
-}
-
-.tooltipRank {
-  font-size: 10px;
-  color: var(--accent-cyan);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.tooltipScores {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.scoreRow {
-  display: flex;
-  justify-content: space-between;
-  font-size: var(--text-xs);
+.judgeName {
   color: var(--text-secondary);
+  font-family: var(--font-ui);
 }
 
-.scoreVal {
-  font-family: var(--font-score);
+.judgeScores {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-weight: var(--weight-bold);
+}
+
+.dot {
+  color: var(--text-muted);
+  opacity: 0.5;
 }
