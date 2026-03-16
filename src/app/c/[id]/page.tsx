@@ -107,114 +107,107 @@ export default async function ClaimDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="content-container">
+    <div className="content-container layout-wide">
       <div className={styles.pageLayout}>
-        <div className="mainFeed">
+        <main className={styles.mainContent}>
       {/* Hero Section */}
       <div className={styles.claimHero}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div className={styles.heroBadges}>
-            {claim.topic && (
-              <span
-                className="badge"
-                style={{
-                  backgroundColor: `${claim.topic.color}20`,
-                  color: claim.topic.color,
-                }}
-              >
-                {claim.topic.name}
-              </span>
-            )}
-            <span className={`badge badge-active`}>
-              {claim.status.toUpperCase()}
-            </span>
-            <SplitBadge level={claim.split_level} />
-          </div>
-          <ShareButton 
-            claimId={claim.id} 
-            title={claim.title} 
-            score={claim.composite_score} 
-          />
-        </div>
-
-        <h1 className={styles.claimTitle}>{claim.title}</h1>
-
-        {claim.description && (
-          <p className={styles.claimDescription}>{claim.description}</p>
-        )}
-
-        <div className={styles.scoreBar}>
-          {claim.status === 'settled' ? (
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-              <SettledBadge score={claim.composite_score} />
+        {/* New Dashboard Hero Layout */}
+        <div className={styles.claimHeroHeader}>
+          <div className={styles.claimHeroMain}>
+            <h1 className={styles.claimTitle}>{claim.title}</h1>
+            <div className={styles.claimSubmitterInfo}>
+              <span className={styles.submitterName}>Added by {evidence[0]?.submitter?.display_name || 'Anonymous'}</span>
+              <span className={styles.metadataDivider}>•</span>
+              <span className={styles.metadataText}>{evidence.length} evidence entries</span>
+              <span className={styles.metadataDivider}>•</span>
+              <span className={styles.metadataText}>{claim.judge_count} judges deliberating</span>
             </div>
-          ) : (
-            <>
-              <div className={styles.scoreBarItem}>
-                <div
-                  className={styles.scoreBarValue}
+            <div className={styles.heroBadges}>
+              {claim.topic && (
+                <span
+                  className="badge"
                   style={{
-                    color: claim.composite_score > 0
-                      ? getScoreColor(claim.composite_score)
-                      : 'var(--text-muted)',
+                    backgroundColor: `${claim.topic.color}20`,
+                    color: claim.topic.color,
                   }}
                 >
-                  {claim.composite_score > 0 ? claim.composite_score.toFixed(1) : '—'}
-                </div>
-                <div className={styles.scoreBarLabel}>COMPOSITE</div>
-              </div>
-              <div className={styles.scoreBarItem}>
-                <div className={styles.scoreBarValue}>{claim.evidence_count}</div>
-                <div className={styles.scoreBarLabel}>EVIDENCE</div>
-              </div>
-              <div className={styles.scoreBarItem}>
-                <div className={styles.scoreBarValue}>{claim.judge_count}</div>
-                <div className={styles.scoreBarLabel}>JUDGES</div>
-              </div>
-              <div className={styles.scoreBarItem}>
-                <div className={styles.scoreBarValue}>
-                  {supporting.length}/{challenging.length}
-                </div>
-                <div className={styles.scoreBarLabel}>FOR/AGAINST</div>
-              </div>
-            </>
-          )}
+                  {claim.topic.name}
+                </span>
+              )}
+              <span className={`badge badge-active`}>
+                {claim.status.toUpperCase()}
+              </span>
+              <SplitBadge level={claim.split_level} />
+            </div>
+            
+            {claim.description && (
+              <p className={styles.claimDescription}>{claim.description}</p>
+            )}
+          </div>
+          
+          <div className={styles.claimHeroActions}>
+            <ShareButton 
+              claimId={claim.id} 
+              title={claim.title} 
+              score={claim.composite_score} 
+            />
+          </div>
         </div>
 
-        {/* Dimension Bars Card */}
-        {allRatings.length > 0 && claim.status !== 'settled' && (
-          <div className={styles.dimensionCard}>
-            <div className={styles.dimensionItem}>
-              <div className={styles.dimensionHeader}>
-                <span>Source Quality</span>
-                <span className={styles.dimensionScore} style={{ color: getScoreColor(avgSource) }}>{avgSource.toFixed(1)}</span>
+        {/* Dashboard Score Card */}
+        <div className={styles.dashboardScoreCard}>
+          <div className={styles.compositeScoreSection}>
+            <div className={styles.compositeScoreValue} style={{ color: claim.composite_score > 0 ? getScoreColor(claim.composite_score) : 'var(--text-muted)' }}>
+              {claim.composite_score > 0 ? claim.composite_score.toFixed(1) : '—'}
+            </div>
+            <div className={styles.compositeScoreLabel}>COMPOSITE SCORE</div>
+          </div>
+          
+          <div className={styles.verticalStatsSection}>
+            <div className={styles.verticalStat}>
+              <div className={styles.statHeader}>
+                <span className={styles.statLabel}>Source Reliability</span>
+                <span className={styles.statScore} style={{ color: getScoreColor(avgSource) }}>{avgSource > 0 ? avgSource.toFixed(1) : '—'}</span>
               </div>
-              <div className={styles.progressBarContainer}>
-                <div className={styles.progressBar} style={{ width: `${(avgSource / 10) * 100}%`, backgroundColor: getScoreColor(avgSource) }} />
+              <div className={styles.statBarBg}>
+                <div className={styles.statBarFill} style={{ width: `${(avgSource / 10) * 100}%`, backgroundColor: getScoreColor(avgSource) }}></div>
               </div>
             </div>
             
-            <div className={styles.dimensionItem}>
-              <div className={styles.dimensionHeader}>
-                <span>Logical Strength</span>
-                <span className={styles.dimensionScore} style={{ color: getScoreColor(avgLogic) }}>{avgLogic.toFixed(1)}</span>
+            <div className={styles.verticalStat}>
+              <div className={styles.statHeader}>
+                <span className={styles.statLabel}>Logical Strength</span>
+                <span className={styles.statScore} style={{ color: getScoreColor(avgLogic) }}>{avgLogic > 0 ? avgLogic.toFixed(1) : '—'}</span>
               </div>
-              <div className={styles.progressBarContainer}>
-                <div className={styles.progressBar} style={{ width: `${(avgLogic / 10) * 100}%`, backgroundColor: getScoreColor(avgLogic) }} />
+              <div className={styles.statBarBg}>
+                <div className={styles.statBarFill} style={{ width: `${(avgLogic / 10) * 100}%`, backgroundColor: getScoreColor(avgLogic) }}></div>
               </div>
             </div>
-            
-            <div className={styles.dimensionItem}>
-              <div className={styles.dimensionHeader}>
-                <span>Relevance</span>
-                <span className={styles.dimensionScore} style={{ color: getScoreColor(avgRelevance) }}>{avgRelevance.toFixed(1)}</span>
+
+            <div className={styles.verticalStat}>
+              <div className={styles.statHeader}>
+                <span className={styles.statLabel}>Context Relevance</span>
+                <span className={styles.statScore} style={{ color: getScoreColor(avgRelevance) }}>{avgRelevance > 0 ? avgRelevance.toFixed(1) : '—'}</span>
               </div>
-              <div className={styles.progressBarContainer}>
-                <div className={styles.progressBar} style={{ width: `${(avgRelevance / 10) * 100}%`, backgroundColor: getScoreColor(avgRelevance) }} />
+              <div className={styles.statBarBg}>
+                <div className={styles.statBarFill} style={{ width: `${(avgRelevance / 10) * 100}%`, backgroundColor: getScoreColor(avgRelevance) }}></div>
+              </div>
+            </div>
+
+            <div className={styles.verticalStat}>
+              <div className={styles.statHeader}>
+                <span className={styles.statLabel}>Controversy Index</span>
+                <span className={styles.statScore} style={{ color: claim.split_level === 'high' ? 'var(--warning-amber)' : 'var(--text-muted)' }}>
+                  {claim.split_level.toUpperCase()}
+                </span>
+              </div>
+              <div className={styles.statBarBg}>
+                <div className={styles.statBarFill} style={{ width: claim.split_level === 'high' ? '80%' : claim.split_level === 'medium' ? '50%' : '20%', backgroundColor: claim.split_level === 'high' ? 'var(--warning-amber)' : 'var(--text-muted)' }}></div>
               </div>
             </div>
           </div>
-        )}
+        </div>
         
         {/* Actions Row */}
         <ClaimActions 
@@ -225,16 +218,15 @@ export default async function ClaimDetailPage({ params }: Props) {
         />
       </div>
 
-      {/* Score Timeline */}
-      <div className={styles.timelineSection}>
-        <h2 className={styles.sectionTitle} style={{ fontSize: 'var(--text-lg)' }}>Score History</h2>
-        <ScoreHistoryChart ratings={allRatings} currentScore={claim.composite_score} />
-      </div>
+      {/* Score Timeline is moving to sidebar */}
 
       {/* Evidence Section */}
       <div className={styles.evidenceSection}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Evidence ({evidence.length})</h2>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-4)' }}>
+            <h2 className={styles.sectionTitle}>Evidence</h2>
+            <span className={styles.evidenceCountBadge}>{evidence.length}</span>
+          </div>
           <a href={`/submit?claim=${id}`} className={styles.submitEvidenceButton}>
             + Submit Evidence
           </a>
@@ -288,23 +280,20 @@ export default async function ClaimDetailPage({ params }: Props) {
         </div>
       )}
 
-        </div>
-        <aside className="sidebar">
-          <RelatedClaimsSidebar claims={relatedClaims} />
+        </main>
+        
+        <aside className={styles.sidebar}>
+          {/* Score Timeline */}
+          <div className={`${styles.timelineSection} ${styles.sidebarCard}`}>
+            <h2 className={styles.sectionTitle} style={{ fontSize: 'var(--text-lg)' }}>Score History</h2>
+            <ScoreHistoryChart ratings={allRatings} currentScore={claim.composite_score} />
+          </div>
+
+          <div className={styles.sidebarCard}>
+            <RelatedClaimsSidebar claims={relatedClaims} />
+          </div>
         </aside>
       </div>
-
-      {/* Sticky CTA */}
-      {claim.status !== 'settled' && (
-        <div className={styles.stickyCtaWrap}>
-          <div className={styles.stickyCta}>
-            <span className={styles.stickyText}>Have new evidence for this claim?</span>
-            <a href={`/submit?claim=${id}`} className={styles.stickyButton}>
-              Submit Evidence
-            </a>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

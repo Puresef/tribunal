@@ -13,9 +13,9 @@ interface EvidenceCardProps {
 }
 
 const STANCE_STYLES = {
-  supporting: { class: styles.supportingCard, badgeClass: styles.stanceSupporting, label: '✓ Supporting' },
-  challenging: { class: styles.challengingCard, badgeClass: styles.stanceChallenging, label: '✗ Challenging' },
-  derived: { class: styles.derivedCard, badgeClass: styles.stanceDerived, label: '◆ Derived' },
+  supporting: { class: styles.supportingCard, badgeClass: styles.stanceSupporting, label: 'SUPPORTING EVIDENCE' },
+  challenging: { class: styles.challengingCard, badgeClass: styles.stanceChallenging, label: 'CHALLENGING EVIDENCE' },
+  derived: { class: styles.derivedCard, badgeClass: styles.stanceDerived, label: 'DERIVED EVIDENCE' },
 };
 
 export default function EvidenceCard({ evidence, ratings = [], onScoreClick }: EvidenceCardProps) {
@@ -64,7 +64,7 @@ export default function EvidenceCard({ evidence, ratings = [], onScoreClick }: E
               {evidence.composite_score > 0 ? evidence.composite_score.toFixed(1) : '—'}
             </span>
             <span className={styles.scoreLabel}>
-              Composite
+              COMPOSITE
             </span>
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function EvidenceCard({ evidence, ratings = [], onScoreClick }: E
           className={styles.scoreButton}
           onClick={() => onScoreClick(evidence)}
         >
-          ⚖ Score This
+          ⚖ Judge This
         </button>
       </div>
     </div>

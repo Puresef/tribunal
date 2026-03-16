@@ -15,26 +15,35 @@
   box-shadow: var(--shadow-elevated);
 }
 
-/* Stance Indicators */
+/* Stance Indicators (Thick left border) */
 .evidenceCard::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   bottom: 0;
-  width: 4px;
+  width: 6px;
   border-top-left-radius: var(--radius-lg);
   border-bottom-left-radius: var(--radius-lg);
 }
 
+.supportingCard {
+  border-color: rgba(52, 211, 153, 0.2);
+}
 .supportingCard::before {
-  background-color: var(--stance-supporting);
+  background-color: var(--stance-supporting); /* Green */
 }
 
+.challengingCard {
+  border-color: rgba(248, 113, 113, 0.2);
+}
 .challengingCard::before {
-  background-color: var(--stance-challenging);
+  background-color: var(--stance-challenging); /* Red */
 }
 
+.derivedCard {
+  border-color: rgba(167, 139, 250, 0.2);
+}
 .derivedCard::before {
   background-color: var(--stance-derived);
 }
@@ -106,14 +115,16 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  margin-left: auto; /* Pushes score to the right */
 }
 
 .radarWrapper {
-  width: 90px;
-  height: 90px;
+  width: 70px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0.8;
 }
 
 .scoreBox {
@@ -121,26 +132,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 60px;
-  min-height: 60px;
+  min-width: 70px;
+  min-height: 70px;
   padding: var(--space-2);
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  background-color: transparent;
+  border: none;
 }
 
 .scoreValue {
   font-family: var(--font-score);
-  font-size: var(--text-2xl);
+  font-size: 2.5rem;
   font-weight: var(--weight-bold);
   line-height: 1;
 }
 
 .scoreLabel {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   margin-top: 4px;
 }
 

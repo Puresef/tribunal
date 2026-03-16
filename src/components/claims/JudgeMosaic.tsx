@@ -31,14 +31,17 @@ export default function JudgeMosaic({ ratings, maxDisplay = 5 }: JudgeMosaicProp
           <div 
             key={rating.id} 
             className={styles.avatar} 
-            style={{ zIndex }}
+            style={{ 
+              zIndex, 
+              backgroundImage: judge?.avatar_url ? `url(${judge.avatar_url})` : 'none',
+              backgroundColor: judge?.avatar_url ? 'transparent' : 'var(--bg-elevated)',
+            }}
             aria-label={`Score by ${displayName}`}
           >
-            {judge?.avatar_url ? (
-              <img src={judge.avatar_url} alt={displayName} className={styles.avatarImage} />
-            ) : (
-              <span>{getInitials(displayName)}</span>
-            )}
+            {/* Show composite score overlay */}
+            <span className={styles.avatarScoreOverlay} style={{ color: getScoreColor(rating.composite) }}>
+              {rating.composite.toFixed(1)}
+            </span>
 
             {/* Hover Tooltip */}
             <div className={styles.tooltip}>

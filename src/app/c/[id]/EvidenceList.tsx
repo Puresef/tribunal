@@ -40,53 +40,66 @@ export default function EvidenceList({ evidence, claimTitle, ratingsMap }: Evide
     if (error) throw error;
   };
 
+  const [activeTab, setActiveTab] = useState<'all' | 'supporting' | 'challenging' | 'controversial'>('all');
+
   const supporting = evidence.filter((e) => e.stance === 'supporting');
   const challenging = evidence.filter((e) => e.stance === 'challenging' || e.stance === 'derived');
+  // Mock controversial for now (e.g. high divergence in scores)
+  const controversial = evidence.filter((e) => e.composite_score > 0 && Math.abs(e.composite_score - 5) < 2);
+
+  const getFilteredEvidence = () => {
+    switch (activeTab) {
+      case 'supporting': return supporting;
+      case 'challenging': return challenging;
+      case 'controversial': return controversial;
+      default: return evidence;
+    }
+  };
+
+  const displayedEvidence = getFilteredEvidence();
 
   return (
     <>
-      <div className={styles.splitFeedLayout}>
-        <div className={styles.feedColumn}>
-          <h3 className={styles.columnTitle}>
-            <span className={styles.columnIcon} style={{ color: 'var(--stance-supporting)' }}>✓</span>
-            Supporting Evidence
-          </h3>
-          <div className={styles.evidenceColumnList}>
-            {supporting.length > 0 ? (
-              supporting.map((item) => (
-                <EvidenceCard 
-                  key={item.id} 
-                  evidence={item} 
-                  ratings={ratingsMap[item.id] || []}
-                  onScoreClick={setScoringTarget} 
-                />
-              ))
-            ) : (
-              <p className={styles.emptyColumn}>No supporting evidence submitted.</p>
-            )}
-          </div>
-        </div>
+      <div className={styles.evidenceTabs}>
+        <button 
+          className={`${styles.tabButton} ${activeTab === 'all' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('all')}
+        >
+          ALL EVIDENCE
+        </button>
+        <button 
+          className={`${styles.tabButton} ${activeTab === 'supporting' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('supporting')}
+        >
+          SUPPORTING <span className={styles.tabCount}>{supporting.length}</span>
+        </button>
+        <button 
+          className={`${styles.tabButton} ${activeTab === 'challenging' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('challenging')}
+        >
+          CHALLENGING <span className={styles.tabCount}>{challenging.length}</span>
+        </button>
+        <button 
+          className={`${styles.tabButton} ${activeTab === 'controversial' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('controversial')}
+        >
+          MOST CONTROVERSIAL
+        </button>
+      </div>
 
-        <div className={styles.feedColumn}>
-          <h3 className={styles.columnTitle}>
-            <span className={styles.columnIcon} style={{ color: 'var(--stance-challenging)' }}>✗</span>
-            Challenging Evidence
-          </h3>
-          <div className={styles.evidenceColumnList}>
-            {challenging.length > 0 ? (
-              challenging.map((item) => (
-                <EvidenceCard 
-                  key={item.id} 
-                  evidence={item} 
-                  ratings={ratingsMap[item.id] || []}
-                  onScoreClick={setScoringTarget} 
-                />
-              ))
-            ) : (
-              <p className={styles.emptyColumn}>No challenging evidence submitted.</p>
-            )}
-          </div>
-        </div>
+      <div className={styles.evidenceFeedList}>
+        {displayedEvidence.length > 0 ? (
+          displayedEvidence.map((item) => (
+            <EvidenceCard 
+              key={item.id} 
+              evidence={item} 
+              ratings={ratingsMap[item.id] || []}
+              onScoreClick={setScoringTarget} 
+            />
+          ))
+        ) : (
+          <p className={styles.emptyColumn}>No evidence found for this filter.</p>
+        )}
       </div>
 
       {/* Scoring Modal */}
