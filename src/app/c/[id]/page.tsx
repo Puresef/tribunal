@@ -168,42 +168,42 @@ export default async function ClaimDetailPage({ params }: Props) {
             <div className={styles.verticalStat}>
               <div className={styles.statHeader}>
                 <span className={styles.statLabel}>Source Reliability</span>
-                <span className={styles.statScore} style={{ color: getScoreColor(avgSource) }}>{avgSource > 0 ? avgSource.toFixed(1) : '—'}</span>
+                <span className={styles.statScore} style={{ color: 'var(--score-high)' }}>{avgSource > 0 ? avgSource.toFixed(1) : '—'}</span>
               </div>
               <div className={styles.statBarBg}>
-                <div className={styles.statBarFill} style={{ width: `${(avgSource / 10) * 100}%`, backgroundColor: getScoreColor(avgSource) }}></div>
+                <div className={styles.statBarFill} style={{ width: `${(avgSource / 10) * 100}%`, backgroundColor: 'var(--score-high)' }}></div>
               </div>
             </div>
             
             <div className={styles.verticalStat}>
               <div className={styles.statHeader}>
                 <span className={styles.statLabel}>Logical Strength</span>
-                <span className={styles.statScore} style={{ color: getScoreColor(avgLogic) }}>{avgLogic > 0 ? avgLogic.toFixed(1) : '—'}</span>
+                <span className={styles.statScore} style={{ color: 'var(--score-mid)' }}>{avgLogic > 0 ? avgLogic.toFixed(1) : '—'}</span>
               </div>
               <div className={styles.statBarBg}>
-                <div className={styles.statBarFill} style={{ width: `${(avgLogic / 10) * 100}%`, backgroundColor: getScoreColor(avgLogic) }}></div>
+                <div className={styles.statBarFill} style={{ width: `${(avgLogic / 10) * 100}%`, backgroundColor: 'var(--score-mid)' }}></div>
               </div>
             </div>
 
             <div className={styles.verticalStat}>
               <div className={styles.statHeader}>
                 <span className={styles.statLabel}>Context Relevance</span>
-                <span className={styles.statScore} style={{ color: getScoreColor(avgRelevance) }}>{avgRelevance > 0 ? avgRelevance.toFixed(1) : '—'}</span>
+                <span className={styles.statScore} style={{ color: 'var(--accent-pink)' }}>{avgRelevance > 0 ? avgRelevance.toFixed(1) : '—'}</span>
               </div>
               <div className={styles.statBarBg}>
-                <div className={styles.statBarFill} style={{ width: `${(avgRelevance / 10) * 100}%`, backgroundColor: getScoreColor(avgRelevance) }}></div>
+                <div className={styles.statBarFill} style={{ width: `${(avgRelevance / 10) * 100}%`, backgroundColor: 'var(--accent-pink)' }}></div>
               </div>
             </div>
 
             <div className={styles.verticalStat}>
               <div className={styles.statHeader}>
                 <span className={styles.statLabel}>Controversy Index</span>
-                <span className={styles.statScore} style={{ color: claim.split_level === 'high' ? 'var(--warning-amber)' : 'var(--text-muted)' }}>
+                <span className={styles.statScore} style={{ color: claim.split_level === 'high' ? 'var(--accent-pink)' : 'var(--text-muted)' }}>
                   {claim.split_level.toUpperCase()}
                 </span>
               </div>
               <div className={styles.statBarBg}>
-                <div className={styles.statBarFill} style={{ width: claim.split_level === 'high' ? '80%' : claim.split_level === 'medium' ? '50%' : '20%', backgroundColor: claim.split_level === 'high' ? 'var(--warning-amber)' : 'var(--text-muted)' }}></div>
+                <div className={styles.statBarFill} style={{ width: claim.split_level === 'high' ? '80%' : claim.split_level === 'medium' ? '50%' : '20%', backgroundColor: claim.split_level === 'high' ? 'var(--accent-pink)' : 'var(--text-muted)' }}></div>
               </div>
             </div>
           </div>
@@ -227,9 +227,6 @@ export default async function ClaimDetailPage({ params }: Props) {
             <h2 className={styles.sectionTitle}>Evidence</h2>
             <span className={styles.evidenceCountBadge}>{evidence.length}</span>
           </div>
-          <a href={`/submit?claim=${id}`} className={styles.submitEvidenceButton}>
-            + Submit Evidence
-          </a>
         </div>
 
         {evidence.length > 0 ? (
@@ -237,9 +234,6 @@ export default async function ClaimDetailPage({ params }: Props) {
         ) : (
           <div className={`card ${styles.emptyEvidence}`}>
             <p>No evidence has been submitted yet.</p>
-            <a href={`/submit?claim=${id}`} className={styles.submitEvidenceButton}>
-              Be the first to submit evidence →
-            </a>
           </div>
         )}
       </div>

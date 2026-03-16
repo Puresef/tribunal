@@ -13,13 +13,17 @@ interface EvidenceCardProps {
 }
 
 const STANCE_STYLES = {
-  supporting: { class: styles.supportingCard, badgeClass: styles.stanceSupporting, label: 'SUPPORTING EVIDENCE' },
-  challenging: { class: styles.challengingCard, badgeClass: styles.stanceChallenging, label: 'CHALLENGING EVIDENCE' },
-  derived: { class: styles.derivedCard, badgeClass: styles.stanceDerived, label: 'DERIVED EVIDENCE' },
+  supporting: { class: styles.supportingCard, label: 'SUPPORTING EVIDENCE' },
+  challenging: { class: styles.challengingCard, label: 'CHALLENGING EVIDENCE' },
+  derived: { class: styles.derivedCard, label: 'DERIVED EVIDENCE' },
 };
 
 export default function EvidenceCard({ evidence, ratings = [], onScoreClick }: EvidenceCardProps) {
   const stanceInfo = STANCE_STYLES[evidence.stance] || STANCE_STYLES.supporting;
+  
+  // A card is marked controversial if score is mixed and there's high score variance.
+  // For now, let's designate it as controversial if it meets criteria:
+  const isControversial = evidence.composite_score > 0 && Math.abs(evidence.composite_score - 5) < 2;
   
   // Calculate average sub-scores
   const validRatings = ratings.filter(r => r.source_credibility !== undefined);
@@ -30,11 +34,16 @@ export default function EvidenceCard({ evidence, ratings = [], onScoreClick }: E
   
   return (
     <div className={`${styles.evidenceCard} ${stanceInfo.class}`}>
+      {isControversial && (
+        <div className={styles.controversialBanner}>
+          CONTROVERSIAL
+        </div>
+      )}
       <div className={styles.cardHeader}>
         <div className={styles.cardLeft}>
-          <span className={`${styles.stanceBadge} ${stanceInfo.badgeClass}`}>
+          <div className={styles.categoryLabel}>
             {stanceInfo.label}
-          </span>
+          </div>
           <h3 className={styles.title}>{evidence.title}</h3>
           {evidence.content && (
             <p className={styles.content}>{evidence.content}</p>

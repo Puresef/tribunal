@@ -60,35 +60,29 @@
   min-width: 0;
 }
 
-.stanceBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px var(--space-3);
-  border-radius: var(--radius-pill);
+.categoryLabel {
   font-size: 10px;
   font-weight: var(--weight-bold);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: var(--space-3);
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-2);
 }
 
-.stanceSupporting {
-  background-color: rgba(52, 211, 153, 0.1);
-  color: var(--stance-supporting);
-  border: 1px solid rgba(52, 211, 153, 0.2);
-}
-
-.stanceChallenging {
-  background-color: rgba(248, 113, 113, 0.1);
-  color: var(--stance-challenging);
-  border: 1px solid rgba(248, 113, 113, 0.2);
-}
-
-.stanceDerived {
-  background-color: rgba(167, 139, 250, 0.1);
-  color: var(--stance-derived);
-  border: 1px solid rgba(167, 139, 250, 0.2);
+.controversialBanner {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: var(--accent-pink);
+  color: white;
+  font-size: 9px;
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
+  z-index: 5;
 }
 
 .title {
