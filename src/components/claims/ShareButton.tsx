@@ -51,7 +51,11 @@ export default function ShareButton({ claimId, title, score }: ShareButtonProps)
       onClick={handleShare}
       title="Share this claim"
     >
-      {copied ? '✓ Copied Link' : '📤 Share'}
+      {copied ? '✓ Copied' : (
+        <>
+          <span style={{ fontSize: '1.1em' }}>🗳️</span> Share
+        </>
+      )}
     </button>
   );
 }

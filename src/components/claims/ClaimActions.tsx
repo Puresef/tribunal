@@ -38,7 +38,8 @@ export default function ClaimActions({ claimId, claimTitle, claimStatus, userRan
   return (
     <>
       <div className={styles.utilityLinks}>
-        {canChallenge && (
+        {/* Lodge Challenge: Only meaningful for SETTLED claims to reopen/dispute them */}
+        {canChallenge && claimStatus === 'settled' && (
           <button 
             className={styles.utilityLink} 
             onClick={() => setIsChallengeModalOpen(true)}
@@ -47,7 +48,7 @@ export default function ClaimActions({ claimId, claimTitle, claimStatus, userRan
           </button>
         )}
 
-        {/* Debug Action for ease of testing - show only for staff/high rank */}
+        {/* Debug Action: Manual settlement for building/testing (ACTIVE claims only) */}
         {userRank && userRank !== 'spectator' && claimStatus !== 'settled' && (
           <button 
             className={styles.utilityLink} 

@@ -220,17 +220,20 @@
   background: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-lg);
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
 }
 
 .timelinePlaceholder {
-  height: 200px;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-tertiary);
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  position: relative;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  opacity: 0.5;
 }
 
 /* Sticky CTA */

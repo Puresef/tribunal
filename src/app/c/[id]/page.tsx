@@ -161,21 +161,21 @@ export default async function ClaimDetailPage({ params }: Props) {
                 >
                   {claim.composite_score > 0 ? claim.composite_score.toFixed(1) : '—'}
                 </div>
-                <div className={styles.scoreBarLabel}>Composite</div>
+                <div className={styles.scoreBarLabel}>COMPOSITE</div>
               </div>
               <div className={styles.scoreBarItem}>
                 <div className={styles.scoreBarValue}>{claim.evidence_count}</div>
-                <div className={styles.scoreBarLabel}>Evidence</div>
+                <div className={styles.scoreBarLabel}>EVIDENCE</div>
               </div>
               <div className={styles.scoreBarItem}>
                 <div className={styles.scoreBarValue}>{claim.judge_count}</div>
-                <div className={styles.scoreBarLabel}>Judges</div>
+                <div className={styles.scoreBarLabel}>JUDGES</div>
               </div>
               <div className={styles.scoreBarItem}>
                 <div className={styles.scoreBarValue}>
                   {supporting.length}/{challenging.length}
                 </div>
-                <div className={styles.scoreBarLabel}>For/Against</div>
+                <div className={styles.scoreBarLabel}>FOR/AGAINST</div>
               </div>
             </>
           )}
