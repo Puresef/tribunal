@@ -181,58 +181,48 @@ export default async function ClaimDetailPage({ params }: Props) {
           )}
         </div>
 
-        {/* Dimension Bars */}
+        {/* Dimension Bars Card */}
         {allRatings.length > 0 && claim.status !== 'settled' && (
-          <div style={{ 
-            display: 'flex', 
-            gap: 'var(--space-6)', 
-            marginTop: 'var(--space-4)', 
-            padding: 'var(--space-4) var(--space-6)', 
-            backgroundColor: 'var(--bg-card)', 
-            border: '1px solid var(--border-card)',
-            borderRadius: 'var(--radius-lg)' 
-          }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', marginBottom: 'var(--space-2)', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
+          <div className={styles.dimensionCard}>
+            <div className={styles.dimensionItem}>
+              <div className={styles.dimensionHeader}>
                 <span>Source Quality</span>
-                <span style={{ color: getScoreColor(avgSource), fontWeight: 'bold' }}>{avgSource.toFixed(1)}</span>
+                <span className={styles.dimensionScore} style={{ color: getScoreColor(avgSource) }}>{avgSource.toFixed(1)}</span>
               </div>
-              <div style={{ height: '4px', backgroundColor: 'var(--bg-elevated)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${(avgSource / 10) * 100}%`, backgroundColor: getScoreColor(avgSource) }} />
+              <div className={styles.progressBarContainer}>
+                <div className={styles.progressBar} style={{ width: `${(avgSource / 10) * 100}%`, backgroundColor: getScoreColor(avgSource) }} />
               </div>
             </div>
             
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', marginBottom: 'var(--space-2)', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
+            <div className={styles.dimensionItem}>
+              <div className={styles.dimensionHeader}>
                 <span>Logical Strength</span>
-                <span style={{ color: getScoreColor(avgLogic), fontWeight: 'bold' }}>{avgLogic.toFixed(1)}</span>
+                <span className={styles.dimensionScore} style={{ color: getScoreColor(avgLogic) }}>{avgLogic.toFixed(1)}</span>
               </div>
-              <div style={{ height: '4px', backgroundColor: 'var(--bg-elevated)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${(avgLogic / 10) * 100}%`, backgroundColor: getScoreColor(avgLogic) }} />
+              <div className={styles.progressBarContainer}>
+                <div className={styles.progressBar} style={{ width: `${(avgLogic / 10) * 100}%`, backgroundColor: getScoreColor(avgLogic) }} />
               </div>
             </div>
             
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', marginBottom: 'var(--space-2)', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
+            <div className={styles.dimensionItem}>
+              <div className={styles.dimensionHeader}>
                 <span>Relevance</span>
-                <span style={{ color: getScoreColor(avgRelevance), fontWeight: 'bold' }}>{avgRelevance.toFixed(1)}</span>
+                <span className={styles.dimensionScore} style={{ color: getScoreColor(avgRelevance) }}>{avgRelevance.toFixed(1)}</span>
               </div>
-              <div style={{ height: '4px', backgroundColor: 'var(--bg-elevated)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${(avgRelevance / 10) * 100}%`, backgroundColor: getScoreColor(avgRelevance) }} />
+              <div className={styles.progressBarContainer}>
+                <div className={styles.progressBar} style={{ width: `${(avgRelevance / 10) * 100}%`, backgroundColor: getScoreColor(avgRelevance) }} />
               </div>
             </div>
           </div>
         )}
         
         {/* Actions Row */}
-        <div style={{ marginTop: 'var(--space-6)' }}>
-          <ClaimActions 
-            claimId={claim.id} 
-            claimTitle={claim.title}
-            claimStatus={claim.status}
-            userRank={userProfile?.rank}
-          />
-        </div>
+        <ClaimActions 
+          claimId={claim.id} 
+          claimTitle={claim.title}
+          claimStatus={claim.status}
+          userRank={userProfile?.rank}
+        />
       </div>
 
       {/* Score Timeline */}

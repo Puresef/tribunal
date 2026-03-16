@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ChallengeModal from './ChallengeModal';
 import { debugSettleClaim } from '@/lib/actions';
+import styles from '@/app/c/[id]/claim-detail.module.css';
 
 interface ClaimActionsProps {
   claimId: string;
@@ -17,7 +18,8 @@ export default function ClaimActions({ claimId, claimTitle, claimStatus, userRan
   const [isChallengeModalOpen, setIsChallengeModalOpen] = useState(false);
   const [isSettling, setIsSettling] = useState(false);
 
-  // Determine if user can challenge (Senior Judge+)
+  // Logic: Lodge Challenge is most relevant for Settled claims (to reopen/dispute),
+  // but can be for Active claims (procedural/duplicate).
   const canChallenge = userRank && ['senior_judge', 'verified_judge', 'chief_justice'].includes(userRank);
 
   const handleSettle = async () => {
@@ -33,35 +35,26 @@ export default function ClaimActions({ claimId, claimTitle, claimStatus, userRan
     }
   };
 
-  if (claimStatus === 'settled') {
-    return null; // No actions on settled claims
-  }
-
   return (
     <>
-      <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+      <div className={styles.utilityLinks}>
         {canChallenge && (
           <button 
-            className="btn btn-secondary" 
+            className={styles.utilityLink} 
             onClick={() => setIsChallengeModalOpen(true)}
-            style={{ 
-              borderColor: 'var(--warning-amber)', 
-              color: 'var(--warning-amber)',
-              backgroundColor: 'rgba(245, 158, 11, 0.05)'
-            }}
           >
             ⚠️ Lodge Challenge
           </button>
         )}
 
-        {/* Debug Action for ease of testing */}
-        {userRank !== 'spectator' && (
+        {/* Debug Action for ease of testing - show only for staff/high rank */}
+        {userRank && userRank !== 'spectator' && claimStatus !== 'settled' && (
           <button 
-            className="btn btn-secondary" 
+            className={styles.utilityLink} 
             onClick={handleSettle}
             disabled={isSettling}
           >
-            {isSettling ? 'Settling...' : '🔨 Settle Claim (Debug)'}
+            {isSettling ? '⏳ Settling...' : '🔨 Settle Claim (Debug)'}
           </button>
         )}
       </div>
