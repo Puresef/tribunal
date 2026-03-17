@@ -52,7 +52,7 @@
   opacity: 0.5;
 }
 
-/* Dashboard Score Card */
+/* Dashboard Score Card — 3-Panel Horizontal */
 .dashboardScoreCard {
   display: flex;
   background: var(--bg-card);
@@ -62,9 +62,10 @@
   overflow: hidden;
 }
 
+/* Panel 1: Composite Score */
 .compositeScoreSection {
-  flex: 0 0 45%;
-  padding: var(--space-8);
+  flex: 0 0 200px;
+  padding: var(--space-6) var(--space-8);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -73,55 +74,45 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
+.compositeScoreLabel {
+  font-family: var(--font-display);
+  font-size: 11px;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: var(--space-2);
+}
+
 .compositeScoreValue {
   font-family: var(--font-score);
-  font-size: 6rem;
+  font-size: 4.5rem;
   font-weight: var(--weight-bold);
   line-height: 1;
   letter-spacing: -0.02em;
 }
 
-.compositeScoreLabel {
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-top: var(--space-4);
-}
-
-.verticalStatsSection {
+/* Panel 2: Compact Dimension Bars */
+.dimensionBarsSection {
   flex: 1;
   padding: var(--space-6) var(--space-8);
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
   justify-content: center;
+  border-right: 1px solid var(--border-card);
 }
 
-.verticalStat {
+.compactStat {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-}
-
-.statHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 6px;
 }
 
 .statLabel {
-  font-size: var(--text-xs);
+  font-size: 11px;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: var(--weight-semibold);
-}
-
-.statScore {
-  font-family: var(--font-score);
-  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
   font-weight: var(--weight-bold);
 }
 
@@ -136,6 +127,31 @@
   height: 100%;
   border-radius: var(--radius-pill);
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Panel 3: Controversy Index */
+.controversySection {
+  flex: 0 0 180px;
+  padding: var(--space-6) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.controversyLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.controversyValue {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
 }
 
 /* Utility Links */

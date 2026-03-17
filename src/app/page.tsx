@@ -24,7 +24,7 @@ export default async function BoardPage() {
   }
 
   return (
-    <div className="content-container">
+    <div className="content-container layout-wide">
       <div className={styles.boardHeader}>
         <h1 className={styles.title}>The Board</h1>
         <p className={styles.subtitle}>

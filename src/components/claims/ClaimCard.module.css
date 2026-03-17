@@ -1,14 +1,13 @@
 .claimCard {
-  padding: var(--space-6);
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
   background-color: var(--bg-card);
   border: 1px solid var(--border-card);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   transition: 
     transform var(--transition-base) cubic-bezier(0.2, 0, 0, 1),
     border-color var(--transition-base) ease,
@@ -17,73 +16,54 @@
   overflow: hidden;
 }
 
-.claimCard::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(800px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(255, 255, 255, 0.03), transparent 40%);
-  opacity: 0;
-  transition: opacity var(--transition-base);
-  pointer-events: none;
-}
-
 .claimCard:hover {
   transform: translateY(-4px);
   border-color: var(--border-active);
   box-shadow: var(--shadow-elevated), 0 0 20px rgba(0, 0, 0, 0.4);
 }
 
-.claimCard:hover::before {
-  opacity: 1;
-}
-
+/* Header: Topic + Timestamp */
 .cardHeader {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-3);
-  z-index: 1;
+  align-items: flex-start;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-card);
 }
 
-.topicBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 3px var(--space-3);
-  border-radius: var(--radius-pill);
-  font-size: 10px;
-  font-weight: var(--weight-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-  background-color: var(--bg-elevated);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.scoreBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 60px;
-  padding: var(--space-1) var(--space-2);
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-}
-
-.scoreValue {
-  font-family: var(--font-score);
-  font-size: var(--text-2xl);
-  font-weight: var(--weight-bold);
-  line-height: 1;
-}
-
-.scoreLabel {
+.headerLabel {
+  display: block;
   font-size: 9px;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-top: 2px;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.topicName {
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.timestampValue {
+  display: block;
+  font-size: 12px;
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+  text-align: right;
+  font-family: var(--font-mono);
+}
+
+/* Body: Title + Giant Score */
+.cardBody {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  min-height: 100px;
 }
 
 .claimTitle {
@@ -93,62 +73,87 @@
   color: var(--text-primary);
   line-height: var(--leading-tight);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin: var(--space-1) 0;
-  z-index: 1;
+  flex: 1;
 }
 
-.cardMeta {
+.scoreArea {
   display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-  z-index: 1;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
 }
 
-.metaItem {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--text-tertiary);
-}
-
-.metaIcon {
-  font-size: var(--text-sm);
-  opacity: 0.6;
-}
-
-.splitBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px var(--space-3);
-  border-radius: var(--radius-pill);
-  font-size: 10px;
-  font-weight: var(--weight-bold);
-  letter-spacing: 0.06em;
+.compositeLabel {
+  font-size: 9px;
+  color: var(--text-muted);
   text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
-.splitHigh {
-  background-color: rgba(248, 113, 113, 0.1);
-  color: var(--split-high);
-  border: 1px solid rgba(248, 113, 113, 0.2);
-  box-shadow: 0 0 10px rgba(248, 113, 113, 0.1);
+.scoreValue {
+  font-family: var(--font-score);
+  font-size: 3.5rem;
+  font-weight: var(--weight-bold);
+  line-height: 1;
 }
 
-.splitMedium {
-  background-color: rgba(251, 191, 36, 0.1);
-  color: var(--split-medium);
-  border: 1px solid rgba(251, 191, 36, 0.2);
+/* Status Badge */
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.splitLow {
-  background-color: rgba(52, 211, 153, 0.05);
-  color: var(--split-low);
-  border: 1px solid rgba(52, 211, 153, 0.1);
+.badgeVolatility {
+  color: var(--accent-pink);
 }
+
+.badgeTrending {
+  color: var(--score-high);
+}
+
+.badgeVault {
+  color: var(--accent-purple);
+}
+
+/* Bottom Stats */
+.cardStats {
+  display: flex;
+  border-top: 1px solid var(--border-card);
+}
+
+.statBox {
+  flex: 1;
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statBox + .statBox {
+  border-left: 1px solid var(--border-card);
+}
+
+.statBoxLabel {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.statBoxValue {
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+

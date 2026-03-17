@@ -9,6 +9,9 @@ import { formatDistanceToNow } from 'date-fns';
 type FeedItem = {
   id: string;
   composite: number;
+  source_credibility: number;
+  logical_strength: number;
+  relevance: number;
   created_at: string;
   judge?: {
     display_name: string;
@@ -35,6 +38,9 @@ export default function LiveScoringFeed() {
         .select(`
           id,
           composite,
+          source_credibility,
+          logical_strength,
+          relevance,
           created_at,
           judge:profiles(display_name, avatar_url),
           evidence(title, claim:claims(id, title))
@@ -62,6 +68,9 @@ export default function LiveScoringFeed() {
             .select(`
               id,
               composite,
+              source_credibility,
+              logical_strength,
+              relevance,
               created_at,
               judge:profiles(display_name, avatar_url),
               evidence(title, claim:claims(id, title))
@@ -91,7 +100,7 @@ export default function LiveScoringFeed() {
     <div className={styles.feedContainer}>
       <div className={styles.header}>
         <div className={styles.pulse}></div>
-        <h3 className={styles.title}>Live Feed</h3>
+        <h3 className={styles.title}>LIVE SCORING</h3>
       </div>
       
       <div className={styles.feedList}>
@@ -107,26 +116,31 @@ export default function LiveScoringFeed() {
 
             return (
               <div key={item.id} className={styles.feedItem}>
-                <img src={avatarUrl} alt={judgeName} className={styles.avatar} />
-                <div className={styles.itemContent}>
-                  <span className={styles.judgeName}>{judgeName}</span>
-                  <span className={styles.action}> scored </span>
-                  <span className={styles.evidenceName}>
-                    {evidenceTitle.length > 30 ? `${evidenceTitle.substring(0, 30)}...` : evidenceTitle}
-                  </span>
-                  <span className={styles.action}> for </span>
-                  {claimId ? (
-                    <Link href={`/c/${claimId}`} className={styles.claimLink}>
-                      {claimTitle.length > 30 ? `${claimTitle.substring(0, 30)}...` : claimTitle}
-                    </Link>
-                  ) : (
-                    <span className={styles.claimLink}>Unknown Claim</span>
-                  )}
-                  <span className={`${styles.scoreBadge} ${getScoreClass(item.composite)}`}>
-                    {item.composite.toFixed(1)}
-                  </span>
+                <div className={styles.feedItemHeader}>
+                  <div className={styles.judgeLine}>
+                    <img src={avatarUrl} alt={judgeName} className={styles.avatar} />
+                    <span className={styles.judgeName}>{judgeName}</span>
+                  </div>
                   <span className={styles.time}>
-                    {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(item.created_at), { addSuffix: false })}
+                  </span>
+                </div>
+                {claimId ? (
+                  <Link href={`/c/${claimId}`} className={styles.claimLink}>
+                    {claimTitle.length > 40 ? `${claimTitle.substring(0, 40)}...` : claimTitle}
+                  </Link>
+                ) : (
+                  <span className={styles.claimLink}>{evidenceTitle}</span>
+                )}
+                <div className={styles.scorePills}>
+                  <span className={`${styles.scorePill} ${getScoreClass(item.source_credibility || item.composite)}`}>
+                    {(item.source_credibility || item.composite).toFixed(1)}
+                  </span>
+                  <span className={`${styles.scorePill} ${getScoreClass(item.logical_strength || item.composite)}`}>
+                    {(item.logical_strength || item.composite).toFixed(1)}
+                  </span>
+                  <span className={`${styles.scorePill} ${getScoreClass(item.relevance || item.composite)}`}>
+                    {(item.relevance || item.composite).toFixed(1)}
                   </span>
                 </div>
               </div>

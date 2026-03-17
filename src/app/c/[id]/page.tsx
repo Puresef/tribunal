@@ -119,17 +119,9 @@ export default async function ClaimDetailPage({ params }: Props) {
         <main className={styles.mainContent}>
       {/* Hero Section */}
       <div className={styles.claimHero}>
-        {/* New Dashboard Hero Layout */}
+        {/* Badges first, then title, then metadata */}
         <div className={styles.claimHeroHeader}>
           <div className={styles.claimHeroMain}>
-            <h1 className={styles.claimTitle}>{claim.title}</h1>
-            <div className={styles.claimSubmitterInfo}>
-              <span className={styles.submitterName}>Added by {evidence[0]?.submitter?.display_name || 'Anonymous'}</span>
-              <span className={styles.metadataDivider}>•</span>
-              <span className={styles.metadataText}>{evidence.length} evidence entries</span>
-              <span className={styles.metadataDivider}>•</span>
-              <span className={styles.metadataText}>{claim.judge_count} judges deliberating</span>
-            </div>
             <div className={styles.heroBadges}>
               {claim.topic && (
                 <span
@@ -145,12 +137,19 @@ export default async function ClaimDetailPage({ params }: Props) {
               <span className={`badge badge-active`}>
                 {claim.status.toUpperCase()}
               </span>
-              <SplitBadge level={claim.split_level} />
             </div>
-            
-            {claim.description && (
-              <p className={styles.claimDescription}>{claim.description}</p>
-            )}
+
+            <h1 className={styles.claimTitle}>{claim.title}</h1>
+
+            <div className={styles.claimSubmitterInfo}>
+              <span className={styles.submitterName}>@{(evidence[0]?.submitter?.display_name || 'anonymous').toLowerCase().replace(/\s+/g, '_')}</span>
+              <span className={styles.metadataDivider}>·</span>
+              <span className={styles.metadataText}>{evidence[0]?.submitter?.rank?.replace('_', ' ') || 'Judge'}</span>
+              <span className={styles.metadataDivider}>|</span>
+              <span className={styles.metadataText}>{evidence.length} evidence entries</span>
+              <span className={styles.metadataDivider}>|</span>
+              <span className={styles.metadataText}>{claim.judge_count} judges deliberating</span>
+            </div>
           </div>
           
           <div className={styles.claimHeroActions}>
@@ -162,56 +161,46 @@ export default async function ClaimDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Dashboard Score Card */}
+        {/* 3-Panel Score Card: Composite | Bars | Controversy */}
         <div className={styles.dashboardScoreCard}>
+          {/* Panel 1: Composite Score */}
           <div className={styles.compositeScoreSection}>
+            <div className={styles.compositeScoreLabel}>COMPOSITE SCORE</div>
             <div className={styles.compositeScoreValue} style={{ color: displayCompositeScore > 0 ? getScoreColor(displayCompositeScore) : 'var(--text-muted)' }}>
               {displayCompositeScore > 0 ? displayCompositeScore.toFixed(1) : '—'}
             </div>
-            <div className={styles.compositeScoreLabel}>COMPOSITE SCORE</div>
           </div>
-          
-          <div className={styles.verticalStatsSection}>
-            <div className={styles.verticalStat}>
-              <div className={styles.statHeader}>
-                <span className={styles.statLabel}>Source Reliability</span>
-                <span className={styles.statScore} style={{ color: 'var(--score-high)' }}>{avgSource > 0 ? avgSource.toFixed(1) : '—'}</span>
-              </div>
+
+          {/* Panel 2: Compact Dimension Bars */}
+          <div className={styles.dimensionBarsSection}>
+            <div className={styles.compactStat}>
+              <span className={styles.statLabel}>SOURCE RELIABILITY</span>
               <div className={styles.statBarBg}>
                 <div className={styles.statBarFill} style={{ width: `${(avgSource / 10) * 100}%`, backgroundColor: 'var(--score-high)' }}></div>
               </div>
             </div>
-            
-            <div className={styles.verticalStat}>
-              <div className={styles.statHeader}>
-                <span className={styles.statLabel}>Logical Strength</span>
-                <span className={styles.statScore} style={{ color: 'var(--score-mid)' }}>{avgLogic > 0 ? avgLogic.toFixed(1) : '—'}</span>
-              </div>
+            <div className={styles.compactStat}>
+              <span className={styles.statLabel}>LOGICAL STRENGTH</span>
               <div className={styles.statBarBg}>
                 <div className={styles.statBarFill} style={{ width: `${(avgLogic / 10) * 100}%`, backgroundColor: 'var(--score-mid)' }}></div>
               </div>
             </div>
-
-            <div className={styles.verticalStat}>
-              <div className={styles.statHeader}>
-                <span className={styles.statLabel}>Context Relevance</span>
-                <span className={styles.statScore} style={{ color: 'var(--accent-pink)' }}>{avgRelevance > 0 ? avgRelevance.toFixed(1) : '—'}</span>
-              </div>
+            <div className={styles.compactStat}>
+              <span className={styles.statLabel}>CONTEXT RELEVANCE</span>
               <div className={styles.statBarBg}>
                 <div className={styles.statBarFill} style={{ width: `${(avgRelevance / 10) * 100}%`, backgroundColor: 'var(--accent-pink)' }}></div>
               </div>
             </div>
+          </div>
 
-            <div className={styles.verticalStat}>
-              <div className={styles.statHeader}>
-                <span className={styles.statLabel}>Controversy Index</span>
-                <span className={styles.statScore} style={{ color: claim.split_level === 'high' ? 'var(--accent-pink)' : 'var(--text-muted)' }}>
-                  {claim.split_level.toUpperCase()}
-                </span>
-              </div>
-              <div className={styles.statBarBg}>
-                <div className={styles.statBarFill} style={{ width: claim.split_level === 'high' ? '80%' : claim.split_level === 'medium' ? '50%' : '20%', backgroundColor: claim.split_level === 'high' ? 'var(--accent-pink)' : 'var(--text-muted)' }}></div>
-              </div>
+          {/* Panel 3: Controversy Index */}
+          <div className={styles.controversySection}>
+            <div className={styles.controversyLabel}>CONTROVERSY INDEX</div>
+            <div className={styles.controversyValue} style={{ color: claim.split_level === 'high' ? 'var(--accent-pink)' : claim.split_level === 'medium' ? 'var(--score-mid)' : 'var(--text-muted)' }}>
+              {claim.split_level.toUpperCase()}
+            </div>
+            <div className={styles.statBarBg}>
+              <div className={styles.statBarFill} style={{ width: claim.split_level === 'high' ? '80%' : claim.split_level === 'medium' ? '50%' : '20%', backgroundColor: claim.split_level === 'high' ? 'var(--accent-pink)' : claim.split_level === 'medium' ? 'var(--score-mid)' : 'var(--text-muted)' }}></div>
             </div>
           </div>
         </div>
