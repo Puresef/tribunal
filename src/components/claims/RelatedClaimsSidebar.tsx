@@ -10,7 +10,7 @@ export default function RelatedClaimsSidebar({ claims }: Props) {
   if (!claims || claims.length === 0) return null;
 
   return (
-    <div className="card" style={{ padding: 'var(--space-4)', position: 'sticky', top: 'var(--space-6)' }}>
+    <div className="card" style={{ padding: 'var(--space-5)', background: 'var(--bg-card)', border: '1px solid var(--border-card)' }}>
       <h3 style={{ 
         fontFamily: 'var(--font-display)', 
         fontSize: 'var(--text-md)', 

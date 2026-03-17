@@ -97,7 +97,7 @@ export default async function ClaimDetailPage({ params }: Props) {
 
   let relatedClaims: Claim[] = [];
   try {
-    const topicClaims = await getClaims({ limit: 15 });
+    const topicClaims = await getClaims({ limit: 20 });
     if (claim.topic_id) {
       relatedClaims = topicClaims
         .filter((c: Claim) => c.id !== claim.id && c.topic_id === claim.topic_id)
@@ -274,11 +274,7 @@ export default async function ClaimDetailPage({ params }: Props) {
             <ScoreHistoryChart ratings={allRatings} currentScore={displayCompositeScore} />
           </div>
 
-          {relatedClaims && relatedClaims.length > 0 && (
-            <div className={styles.sidebarCard} style={{ padding: 0, background: 'transparent', border: 'none' }}>
-              <RelatedClaimsSidebar claims={relatedClaims} />
-            </div>
-          )}
+          <RelatedClaimsSidebar claims={relatedClaims} />
         </aside>
       </div>
     </div>
