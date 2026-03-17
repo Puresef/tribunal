@@ -114,169 +114,170 @@ export default async function ClaimDetailPage({ params }: Props) {
 
   return (
     <div className="content-container layout-wide">
-      {/* Header Info (Full Width) */}
+
+      {/* ─── HERO: 2-column box (title left, score card right) ─── */}
       <div className={styles.claimHero}>
-        {/* Badges first, then title, then metadata */}
-        <div className={styles.claimHeroHeader}>
-          <div className={styles.claimHeroMain}>
+        {/* Share button — top right */}
+        <div className={styles.claimHeroTopBar}>
+          <ShareButton claimId={claim.id} title={claim.title} score={claim.composite_score} />
+        </div>
+
+        {/* Hero inner: left col + right col */}
+        <div className={styles.heroInner}>
+
+          {/* LEFT: Badges → Title → Meta */}
+          <div className={styles.heroLeft}>
+            <div className={styles.heroBadges}>
+              {claim.topic && (
+                <span className="badge" style={{ backgroundColor: `${claim.topic.color}20`, color: claim.topic.color }}>
+                  {claim.topic.name}
+                </span>
+              )}
+              <span className="badge badge-active">{claim.status.toUpperCase()}</span>
+            </div>
+
             <h1 className={styles.claimTitle}>{claim.title}</h1>
 
             <div className={styles.claimSubmitterInfo}>
               <span className={styles.submitterName}>
-                Added by {evidence[0]?.submitter?.display_name || 'Anonymous'}
+                @{(claim.submitter?.display_name || 'anonymous').toLowerCase().replace(/\s+/g, '_')}
               </span>
-              <span className={styles.metadataDivider}>•</span>
+              <span className={styles.metadataDivider}>·</span>
+              <span className={styles.metadataText}>{claim.submitter?.rank?.replace(/_/g, ' ') || 'Judge'}</span>
+              <span className={styles.metadataDivider}>|</span>
               <span className={styles.metadataText}>{evidence.length} evidence entries</span>
-              <span className={styles.metadataDivider}>•</span>
+              <span className={styles.metadataDivider}>|</span>
               <span className={styles.metadataText}>{claim.judge_count} judges deliberating</span>
             </div>
+          </div>
 
-            <div className={styles.heroBadges}>
-              {claim.topic && (
-                <span
-                  className="badge"
-                  style={{
-                    backgroundColor: `${claim.topic.color}20`,
-                    color: claim.topic.color,
-                  }}
-                >
-                  {claim.topic.name}
-                </span>
-              )}
-              <span className={`badge badge-active`}>
-                {claim.status.toUpperCase()}
-              </span>
+          {/* RIGHT: 3-Panel Score Card */}
+          <div className={styles.dashboardScoreCard}>
+            {/* Panel 1: Composite Score */}
+            <div className={styles.compositeScoreSection}>
+              <div className={styles.compositeScoreLabel}>COMPOSITE SCORE</div>
+              <div
+                className={styles.compositeScoreValue}
+                style={{ color: displayCompositeScore > 0 ? getScoreColor(displayCompositeScore) : 'var(--text-muted)' }}
+              >
+                {displayCompositeScore > 0 ? displayCompositeScore.toFixed(1) : '—'}
+              </div>
             </div>
-            
-            {claim.description && (
-              <p className={styles.claimDescription}>{claim.description}</p>
+
+            {/* Panel 2: Compact Dimension Bars */}
+            <div className={styles.dimensionBarsSection}>
+              <div className={styles.compactStat}>
+                <span className={styles.statLabel}>SOURCE RELIABILITY</span>
+                <div className={styles.statBarBg}>
+                  <div className={styles.statBarFill} style={{ width: `${(avgSource / 10) * 100}%`, backgroundColor: 'var(--score-high)' }} />
+                </div>
+              </div>
+              <div className={styles.compactStat}>
+                <span className={styles.statLabel}>LOGICAL STRENGTH</span>
+                <div className={styles.statBarBg}>
+                  <div className={styles.statBarFill} style={{ width: `${(avgLogic / 10) * 100}%`, backgroundColor: 'var(--score-mid)' }} />
+                </div>
+              </div>
+              <div className={styles.compactStat}>
+                <span className={styles.statLabel}>CONTEXT RELEVANCE</span>
+                <div className={styles.statBarBg}>
+                  <div className={styles.statBarFill} style={{ width: `${(avgRelevance / 10) * 100}%`, backgroundColor: 'var(--accent-pink)' }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Panel 3: Controversy Index */}
+            <div className={styles.controversySection}>
+              <div className={styles.controversyLabel}>CONTROVERSY INDEX</div>
+              <div
+                className={styles.controversyValue}
+                style={{
+                  color: claim.split_level === 'high' ? 'var(--accent-pink)'
+                       : claim.split_level === 'medium' ? 'var(--score-mid)'
+                       : 'var(--text-muted)',
+                }}
+              >
+                {claim.split_level.toUpperCase()}
+              </div>
+              <div className={styles.statBarBg}>
+                <div
+                  className={styles.statBarFill}
+                  style={{
+                    width: claim.split_level === 'high' ? '80%' : claim.split_level === 'medium' ? '50%' : '20%',
+                    backgroundColor: claim.split_level === 'high' ? 'var(--accent-pink)'
+                                   : claim.split_level === 'medium' ? 'var(--score-mid)'
+                                   : 'var(--text-muted)',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+        </div>{/* end heroInner */}
+      </div>{/* end claimHero */}
+
+      {/* ─── BELOW HERO: 2-column grid (evidence left, sidebar right) ─── */}
+      <div className={styles.pageLayout}>
+
+        {/* LEFT: Evidence */}
+        <main className={styles.mainContent}>
+          <div className={styles.evidenceSection}>
+            <div className={styles.sectionHeader}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-4)' }}>
+                <h2 className={styles.sectionTitle}>Evidence</h2>
+                <span className={styles.evidenceCountBadge}>{evidence.length}</span>
+              </div>
+            </div>
+
+            {evidence.length > 0 ? (
+              <EvidenceList evidence={evidence} claimTitle={claim.title} ratingsMap={ratingsMap} />
+            ) : (
+              <div className={`card ${styles.emptyEvidence}`}>
+                <p>No evidence has been submitted yet.</p>
+              </div>
             )}
           </div>
-          
-          <div className={styles.claimHeroActions}>
-            <ShareButton 
-              claimId={claim.id} 
-              title={claim.title} 
-              score={claim.composite_score} 
-            />
-          </div>
-        </div>
-      </div>
 
-      <div className={styles.pageLayout}>
-        <main className={styles.mainContent}>
-        {/* 3-Panel Score Card: Composite | Bars | Controversy */}
-        <div className={styles.dashboardScoreCard}>
-          {/* Panel 1: Composite Score */}
-          <div className={styles.compositeScoreSection}>
-            <div className={styles.compositeScoreLabel}>COMPOSITE SCORE</div>
-            <div className={styles.compositeScoreValue} style={{ color: displayCompositeScore > 0 ? getScoreColor(displayCompositeScore) : 'var(--text-muted)' }}>
-              {displayCompositeScore > 0 ? displayCompositeScore.toFixed(1) : '—'}
-            </div>
-          </div>
-
-          {/* Panel 2: Compact Dimension Bars */}
-          <div className={styles.dimensionBarsSection}>
-            <div className={styles.compactStat}>
-              <span className={styles.statLabel}>SOURCE RELIABILITY</span>
-              <div className={styles.statBarBg}>
-                <div className={styles.statBarFill} style={{ width: `${(avgSource / 10) * 100}%`, backgroundColor: 'var(--score-high)' }}></div>
+          {challenges.length > 0 && (
+            <div className={styles.evidenceSection} style={{ marginTop: 'var(--space-8)' }}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle} style={{ color: 'var(--warning-amber)' }}>
+                  ⚠️ Formal Challenges ({challenges.length})
+                </h2>
               </div>
-            </div>
-            <div className={styles.compactStat}>
-              <span className={styles.statLabel}>LOGICAL STRENGTH</span>
-              <div className={styles.statBarBg}>
-                <div className={styles.statBarFill} style={{ width: `${(avgLogic / 10) * 100}%`, backgroundColor: 'var(--score-mid)' }}></div>
-              </div>
-            </div>
-            <div className={styles.compactStat}>
-              <span className={styles.statLabel}>CONTEXT RELEVANCE</span>
-              <div className={styles.statBarBg}>
-                <div className={styles.statBarFill} style={{ width: `${(avgRelevance / 10) * 100}%`, backgroundColor: 'var(--accent-pink)' }}></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Panel 3: Controversy Index */}
-          <div className={styles.controversySection}>
-            <div className={styles.controversyLabel}>CONTROVERSY INDEX</div>
-            <div className={styles.controversyValue} style={{ color: claim.split_level === 'high' ? 'var(--accent-pink)' : claim.split_level === 'medium' ? 'var(--score-mid)' : 'var(--text-muted)' }}>
-              {claim.split_level.toUpperCase()}
-            </div>
-            <div className={styles.statBarBg}>
-              <div className={styles.statBarFill} style={{ width: claim.split_level === 'high' ? '80%' : claim.split_level === 'medium' ? '50%' : '20%', backgroundColor: claim.split_level === 'high' ? 'var(--accent-pink)' : claim.split_level === 'medium' ? 'var(--score-mid)' : 'var(--text-muted)' }}></div>
-            </div>
-          </div>
-        </div>
-
-      {/* Score Timeline is moving to sidebar */}
-
-      {/* Evidence Section */}
-      <div className={styles.evidenceSection}>
-        <div className={styles.sectionHeader}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-4)' }}>
-            <h2 className={styles.sectionTitle}>Evidence</h2>
-            <span className={styles.evidenceCountBadge}>{evidence.length}</span>
-          </div>
-        </div>
-
-        {evidence.length > 0 ? (
-          <EvidenceList evidence={evidence} claimTitle={claim.title} ratingsMap={ratingsMap} />
-        ) : (
-          <div className={`card ${styles.emptyEvidence}`}>
-            <p>No evidence has been submitted yet.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Challenges Section */}
-      {challenges.length > 0 && (
-        <div className={styles.evidenceSection} style={{ marginTop: 'var(--space-8)' }}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle} style={{ color: 'var(--warning-amber)' }}>
-              ⚠️ Formal Challenges ({challenges.length})
-            </h2>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-            {challenges.map(challenge => (
-              <div key={challenge.id} className="card" style={{ borderLeft: '4px solid var(--warning-amber)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
-                  <div style={{ fontWeight: 'var(--weight-bold)' }}>
-                    {challenge.challenger?.display_name || 'Anonymous Judge'}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                {challenges.map(challenge => (
+                  <div key={challenge.id} className="card" style={{ borderLeft: '4px solid var(--warning-amber)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
+                      <div style={{ fontWeight: 'var(--weight-bold)' }}>
+                        {challenge.challenger?.display_name || 'Anonymous Judge'}
+                      </div>
+                      <div className="badge" style={{ backgroundColor: 'rgba(245,158,11,0.1)', color: 'var(--warning-amber)' }}>
+                        {challenge.status.toUpperCase()}
+                      </div>
+                    </div>
+                    <p className="text-secondary" style={{ fontSize: 'var(--text-sm)', whiteSpace: 'pre-wrap' }}>
+                      {challenge.reason}
+                    </p>
                   </div>
-                  <div className="badge" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: 'var(--warning-amber)' }}>
-                    {challenge.status.toUpperCase()}
-                  </div>
-                </div>
-                <p className="text-secondary" style={{ fontSize: 'var(--text-sm)', whiteSpace: 'pre-wrap' }}>
-                  {challenge.reason}
-                </p>
-                {challenge.new_evidence && (
-                  <div style={{ marginTop: 'var(--space-4)', padding: 'var(--space-3)', backgroundColor: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)' }}>
-                    <span className="text-xs text-muted" style={{ textTransform: 'uppercase', display: 'block', marginBottom: 'var(--space-1)' }}>Linked Evidence</span>
-                    <a href={`#evidence-${challenge.new_evidence_id}`} style={{ color: 'var(--text-primary)', textDecoration: 'none' }}>
-                      "{challenge.new_evidence.title}"
-                    </a>
-                  </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
+            </div>
+          )}
         </main>
-        
+
+        {/* RIGHT: Score History + Related Claims */}
         <aside className={styles.sidebar}>
-          {/* Score Timeline */}
-          <div className={`${styles.timelineSection} ${styles.sidebarCard}`}>
-            <h2 className={styles.sectionTitle} style={{ fontSize: 'var(--text-lg)' }}>Score History</h2>
+          <div className={`${styles.sidebarCard}`}>
+            <h2 className={styles.sectionTitle} style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-4)' }}>Score History</h2>
             <ScoreHistoryChart ratings={allRatings} currentScore={displayCompositeScore} />
           </div>
 
           <RelatedClaimsSidebar claims={relatedClaims} />
         </aside>
-      </div>
+
+      </div>{/* end pageLayout */}
     </div>
   );
 }
+
