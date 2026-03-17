@@ -6,7 +6,6 @@ import EvidenceList from './EvidenceList';
 import SplitBadge from '@/components/claims/SplitBadge';
 import ShareButton from '@/components/claims/ShareButton';
 import SettledBadge from '@/components/claims/SettledBadge';
-import ClaimActions from '@/components/claims/ClaimActions';
 import ScoreHistoryChart from '@/components/claims/ScoreHistoryChart';
 import RelatedClaimsSidebar from '@/components/claims/RelatedClaimsSidebar';
 import styles from './claim-detail.module.css';
@@ -115,13 +114,23 @@ export default async function ClaimDetailPage({ params }: Props) {
 
   return (
     <div className="content-container layout-wide">
-      <div className={styles.pageLayout}>
-        <main className={styles.mainContent}>
-      {/* Hero Section */}
+      {/* Header Info (Full Width) */}
       <div className={styles.claimHero}>
         {/* Badges first, then title, then metadata */}
         <div className={styles.claimHeroHeader}>
           <div className={styles.claimHeroMain}>
+            <h1 className={styles.claimTitle}>{claim.title}</h1>
+
+            <div className={styles.claimSubmitterInfo}>
+              <span className={styles.submitterName}>
+                Added by {evidence[0]?.submitter?.display_name || 'Anonymous'}
+              </span>
+              <span className={styles.metadataDivider}>•</span>
+              <span className={styles.metadataText}>{evidence.length} evidence entries</span>
+              <span className={styles.metadataDivider}>•</span>
+              <span className={styles.metadataText}>{claim.judge_count} judges deliberating</span>
+            </div>
+
             <div className={styles.heroBadges}>
               {claim.topic && (
                 <span
@@ -138,18 +147,10 @@ export default async function ClaimDetailPage({ params }: Props) {
                 {claim.status.toUpperCase()}
               </span>
             </div>
-
-            <h1 className={styles.claimTitle}>{claim.title}</h1>
-
-            <div className={styles.claimSubmitterInfo}>
-              <span className={styles.submitterName}>@{(evidence[0]?.submitter?.display_name || 'anonymous').toLowerCase().replace(/\s+/g, '_')}</span>
-              <span className={styles.metadataDivider}>·</span>
-              <span className={styles.metadataText}>{evidence[0]?.submitter?.rank?.replace('_', ' ') || 'Judge'}</span>
-              <span className={styles.metadataDivider}>|</span>
-              <span className={styles.metadataText}>{evidence.length} evidence entries</span>
-              <span className={styles.metadataDivider}>|</span>
-              <span className={styles.metadataText}>{claim.judge_count} judges deliberating</span>
-            </div>
+            
+            {claim.description && (
+              <p className={styles.claimDescription}>{claim.description}</p>
+            )}
           </div>
           
           <div className={styles.claimHeroActions}>
@@ -160,7 +161,10 @@ export default async function ClaimDetailPage({ params }: Props) {
             />
           </div>
         </div>
+      </div>
 
+      <div className={styles.pageLayout}>
+        <main className={styles.mainContent}>
         {/* 3-Panel Score Card: Composite | Bars | Controversy */}
         <div className={styles.dashboardScoreCard}>
           {/* Panel 1: Composite Score */}
@@ -204,15 +208,6 @@ export default async function ClaimDetailPage({ params }: Props) {
             </div>
           </div>
         </div>
-        
-        {/* Actions Row */}
-        <ClaimActions 
-          claimId={claim.id} 
-          claimTitle={claim.title}
-          claimStatus={claim.status}
-          userRank={userProfile?.rank}
-        />
-      </div>
 
       {/* Score Timeline is moving to sidebar */}
 
